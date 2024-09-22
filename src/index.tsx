@@ -137,8 +137,6 @@ Nulla facilisi. Nullam quis pretium diam. Mauris vestibulum nisl vel lectus semp
 Please
 <a id="wd-lipsum" href="https://www.lipsum.com">click here</a>
 to get dummy text<br/>
-<a id="wd-github" href="https://github.com/traviskaufman/node-lipsum">click here</a>
-for the site's code<br/>
   </React.StrictMode>
 );
 reportWebVitals();
