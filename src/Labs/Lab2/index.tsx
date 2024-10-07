@@ -1,9 +1,10 @@
 import "./index.css";
 import ReactIconsSampler from "./ReactIcons";
+import BootstrapGrid from "./BootstrapGrids";
 
 export default function Lab2() {
   return (
-    <div id="wd-lab2">
+    <div className="container">
       <h2>Lab 2 - Cascading Style Sheets</h2>
       <h3>Styling with the STYLE attribute</h3>
       <p style={{ backgroundColor: "blue",
@@ -303,6 +304,7 @@ Here's another paragraph using a different ID and a different look and
   </div>
   <ReactIconsSampler/>
 
+  <BootstrapGrid/>
   </div>
   );
 }
