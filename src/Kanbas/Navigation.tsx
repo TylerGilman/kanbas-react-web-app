@@ -26,19 +26,22 @@ export default function KanbasNavigation() {
       <Link
         to="/Kanbas/Account"
         id="wd-account-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Account") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black ${
+          pathname.includes("Account") ? "active bg-white text-danger" : "text-white"
         }`}
       >
-        <FaRegCircleUser className="fs-1 text-danger" />
+        <FaRegCircleUser className={`fs-1 text-white" ${
+          pathname.includes("Account") ? "active text-danger" : "text-white"
+        }`}
+        />
         <br />
         Account
       </Link>
       <Link
         to="/Kanbas/Dashboard"
         id="wd-dashboard-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Dashboard") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black ${
+          pathname.includes("Dashboard") ? "active bg-white text-danger" : "text-white"
         }`}
       >
         <AiOutlineDashboard className="fs-1 text-danger" />
@@ -48,8 +51,8 @@ export default function KanbasNavigation() {
       <Link
         to="/Kanbas/Courses"
         id="wd-course-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Courses") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black ${
+          pathname.includes("Courses") ? "active bg-white text-danger" : "text-white"
         }`}
       >
         <LiaBookSolid className="fs-1 text-danger" />
@@ -59,8 +62,8 @@ export default function KanbasNavigation() {
       <Link
         to="/Kanbas/Calendar"
         id="wd-calendar-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Calendar") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black ${
+          pathname.includes("Calendar") ? "active bg-white text-danger" : "text-white"
         }`}
       >
         <GiCalendar className="fs-1 text-danger" />
@@ -70,8 +73,8 @@ export default function KanbasNavigation() {
       <Link
         to="/Kanbas/Inbox"
         id="wd-inbox-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Inbox") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black  ${
+          pathname.includes("Inbox") ? "active bg-white text-danger" : "text-white"
         }`}
       >
         <LuInbox className="fs-1 text-danger" />
@@ -81,8 +84,8 @@ export default function KanbasNavigation() {
       <Link
         to="/Labs"
         id="wd-labs-link"
-        className={`list-group-item text-center border-0 bg-black text-white ${
-          pathname.includes("Labs") ? "active bg-white text-danger" : ""
+        className={`list-group-item text-center border-0 bg-black  ${
+          pathname.includes("Labs") ? "active bg-white text-danger" : "text-white"
         }`}
       >
         <GiLabradorHead className="fs-1 text-danger" />
