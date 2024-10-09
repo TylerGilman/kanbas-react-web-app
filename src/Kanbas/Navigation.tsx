@@ -5,7 +5,7 @@ import { LiaBookSolid } from "react-icons/lia";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { GiCalendar, GiLabradorHead } from "react-icons/gi";
 import { LuInbox } from "react-icons/lu";
-
+import "./styles.css";
 export default function KanbasNavigation() {
   const { pathname } = useLocation();
 

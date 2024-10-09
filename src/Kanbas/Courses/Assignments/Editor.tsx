@@ -1,65 +1,65 @@
 export default function AssignmentEditor() {
   return (
-    <div id="wd-assignments-editor">
+    <div id="wd-assignments-editor text-end">
       <label htmlFor="wd-name">Assignment Name</label>
-      <input id="wd-name" value="A1 - ENV + HTML" /><br /><br />
-      <textarea id="wd-description">
+      <input id="wd-name" value="A1 - ENV + HTML" className="form-control" /><br /><br />
+      <textarea id="wd-description" className="form-control">
         The assignment is available online Submit a link to the landing page of your Web applicaton running on Netlify. The landing page should include the following: Your full name and section Links to each of the lab assignmetns Link to the Kanbas applicaton Links to all relevant source code repositories The Kanbas appliccation should include a link to navigate back to the landing page.
       </textarea>
       <br />
-      <table>
-        <tr>
-          <td align="left" valign="top">
+      <div className="container">
+        <div className="row">
+          <div className="col">
             <label htmlFor="wd-points">Points</label>
-          </td>
-          <td>
+          </div>
+          <div className="col">
             <input id="wd-points" value={100} />
-          </td>
-        </tr>
+          </div>
+        </div>
           <br/>
-        <tr>
-          <td align="left" valign="top">
+        <div className="row">
+          <div className="col">
             <label htmlFor="wd-group">Assignment Group</label>
-          </td>
-          <td>
+          </div>
+          <div className="col">
             <select id="wd-group">
               <option selected>ASSIGNMENTS</option>
               <option>QUIZS</option>
               <option>TESTS</option>
               <option>PROJECTS</option>
             </select>
-          </td>
-        </tr>
+          </div>
+        </div>
           <br/>
-        <tr>
-          <td align="left" valign="top">
+        <div className="row">
+          <div className="col">
             <label htmlFor="wd-display-grade-as">Display Grade As</label>
-          </td>
-          <td>
+          </div>
+          <div className="col">
             <select id="wd-display-grade-as">
               <option selected>Percentage</option>
               <option selected>Total Points</option>
               <option selected>Fractional</option>
             </select>
-          </td>
-        </tr>
+          </div>
+        </div>
           <br/>
-        <tr>
-          <td align="left" valign="top">
+        <div className="row">
+          <div className="col">
             <label htmlFor="wd-submission-type">Submission Type</label>
-          </td>
-          <td>
+          </div>
+          <div className="col">
             <select id="wd-submission-type">
               <option selected>Online</option>
               <option>Gradescope</option>
             </select>
-          </td>
-        </tr><br/>
-        <tr>
-          <td>
-          </td>
-          <td align="left" valign="top">
-        <label>Online Entry Options</label><br/>
+          </div>
+        </div><br/>
+        <div className="row">
+          <div className="col">
+          </div>
+          <div className="col">
+        <label><b>Online Entry Options</b></label><br/>
         <input type="checkbox" name="check-entry-options" id="wd-chkbox-text-entry"/>
         <label htmlFor="wd-chkbox-text-entry">Text Entry</label><br/>
 
@@ -74,53 +74,47 @@ export default function AssignmentEditor() {
 
         <input type="checkbox" name="check-entry-options" id="wd-chkbox-file-uploads"/>
         <label htmlFor="wd-chkbox-file-uploads">File Uploads</label>
-        </td>
-        </tr><br/>
-        <tr>
-          <td align="right" valign="top">
+        </div>
+        </div><br/>
+        <div className="row">
+          <div className="col">
           <label htmlFor="wd-assign-to">Assign</label>
-          </td>
-          <td align="left" valign="top">
-            <label htmlFor="wd-assign-to" >Assign to</label><br/>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
+          </div>
+          <div className="col">
+            <label htmlFor="wd-assign-to" ><b>Assign to</b></label><br/>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+          </div>
+          <div className="col">
             <input type="text" id="wd-assign-to" name="wd-assign-to" placeholder="Everyone"/><br/><br/>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <label htmlFor="wd-due-date">Due</label><br/>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+          </div>
+          <div className="col">
+            <label htmlFor="wd-due-date"><b>Due</b></label><br/>
             <input type="date" id="wd-due-date" name="wd-due-date"/><br/><br/>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td align="left" valign="top">
-            <label htmlFor="wd-avaliable-from">Available from</label><br/>
-            <input type="date" id="wd-avaliable-from"/>
-          </td>
-          <td align="left" valign="top">
-            <label htmlFor="wd-avaliable-until">Until</label><br/>
-            <input type="date" id="wd-avaliable-until"/>
-          </td>
-        </tr>
-        <tr>
-          <td colSpan={3}>
-            <hr/>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td align="right" valign="top">
-            <button>Cancel</button>
-            <button>Save</button>
-          </td>
-        </tr>
-      </table>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col"></div>
+          <div className="col">
+            <label htmlFor="wd-avaliable-from" ><b>Available from</b></label><br/>
+            <input type="date" id="wd-avaliable-from" className="form-control"/>
+          </div>
+          <div className="col">
+            <label htmlFor="wd-avaliable-until"><b>Until</b></label><br/>
+            <input type="date" id="wd-avaliable-until" className="form-control"/>
+          </div>
+        </div>
+        <hr />
+        <div>
+            <button className="btn btn-secondary float-end m-1">Cancel</button>
+            <button className="btn btn-danger float-end m-1">Save</button>
+        </div>
+      </div>
     </div>
 );}

@@ -7,7 +7,7 @@ body * {  font-family: Arial, Helvetica, sans-serif;  }
   }
 }
 
-.list-group.wd > .list-group-item.active {
+.list-group > .list-group-item.active {
   color: black;
   background-color: white;
   border-left: 3px solid black !important;
@@ -36,5 +36,9 @@ body * { font-family:
   --bs-list-group-border-color: gray;
 }
 .wd-lesson {
-  border-left: 3px solid green !important;
+  border-left: 5px solid green !important;
+}
+
+.position-absolute {
+pointer-events: none;
 }
