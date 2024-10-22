@@ -1,120 +1,184 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { assignments } from '../../Database';
+
+interface Assignment {
+  _id: string;
+  title: string;
+  description: string;
+  points: number;
+  due: string;
+  available: string;
+  course: string;
+}
+
 export default function AssignmentEditor() {
+  const { pathname } = useLocation();
+  const parts = pathname.split('/');
+  const courseId = parts[3];
+  const assignmentId = parts[5];
+  
+  const assignment = assignments.find((a: Assignment) => a._id === assignmentId);
+
+  if (!assignment) {
+    return (
+      <div className="p-4">
+        <h1>Assignment not found</h1>
+        <Link to={`/Kanbas/Courses/${courseId}`} 
+              className="text-blue-500 hover:underline">
+          Return to Assignments
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div id="wd-assignments-editor text-end">
-      <label htmlFor="wd-name">Assignment Name</label>
-      <input id="wd-name" value="A1 - ENV + HTML" className="form-control" /><br /><br />
-      <textarea id="wd-description" className="form-control">
-        The assignment is available online Submit a link to the landing page of your Web applicaton running on Netlify. The landing page should include the following: Your full name and section Links to each of the lab assignmetns Link to the Kanbas applicaton Links to all relevant source code repositories The Kanbas appliccation should include a link to navigate back to the landing page.
-      </textarea>
-      <br />
+    <div className="p-4">
       <div className="container">
-        <div className="row">
-          <div className="col">
-            <label htmlFor="wd-points">Points</label>
+        <div id="wd-assignments-editor" className="space-y-4">
+          <div>
+            <label htmlFor="wd-name" className="block font-medium mb-1">
+              Assignment Name
+            </label>
+            <input
+              id="wd-name"
+              defaultValue={assignment.title}
+              className="form-control"
+            />
           </div>
-          <div className="col">
-            <input id="wd-points" value={100} />
+
+          <div>
+            <textarea
+              id="wd-description"
+              className="form-control"
+              defaultValue={assignment.description}
+            />
           </div>
-        </div>
-          <br/>
-        <div className="row">
-          <div className="col">
-            <label htmlFor="wd-group">Assignment Group</label>
+
+          <div className="row">
+            <div className="col-6">
+              <label htmlFor="wd-points" className="block font-medium mb-1">
+                Points
+              </label>
+              <input
+                id="wd-points"
+                type="number"
+                defaultValue={assignment.points}
+                className="form-control"
+              />
+            </div>
+
+            <div className="col-6">
+              <label htmlFor="wd-group" className="block font-medium mb-1">
+                Assignment Group
+              </label>
+              <select id="wd-group" className="form-control">
+                <option>ASSIGNMENTS</option>
+                <option>QUIZZES</option>
+                <option>TESTS</option>
+                <option>PROJECTS</option>
+              </select>
+            </div>
           </div>
-          <div className="col">
-            <select id="wd-group">
-              <option selected>ASSIGNMENTS</option>
-              <option>QUIZS</option>
-              <option>TESTS</option>
-              <option>PROJECTS</option>
+
+          <div>
+            <label htmlFor="wd-display-grade-as" className="block font-medium mb-1">
+              Display Grade As
+            </label>
+            <select id="wd-display-grade-as" className="form-control">
+              <option>Percentage</option>
+              <option>Points</option>
+              <option>Complete/Incomplete</option>
             </select>
           </div>
-        </div>
-          <br/>
-        <div className="row">
-          <div className="col">
-            <label htmlFor="wd-display-grade-as">Display Grade As</label>
-          </div>
-          <div className="col">
-            <select id="wd-display-grade-as">
-              <option selected>Percentage</option>
-              <option selected>Total Points</option>
-              <option selected>Fractional</option>
+
+          <div>
+            <label htmlFor="wd-submission-type" className="block font-medium mb-1">
+              Submission Type
+            </label>
+            <select id="wd-submission-type" className="form-control">
+              <option>Online</option>
+              <option>External Tool</option>
             </select>
           </div>
-        </div>
-          <br/>
-        <div className="row">
-          <div className="col">
-            <label htmlFor="wd-submission-type">Submission Type</label>
-          </div>
-          <div className="col">
-            <select id="wd-submission-type">
-              <option selected>Online</option>
-              <option>Gradescope</option>
-            </select>
-          </div>
-        </div><br/>
-        <div className="row">
-          <div className="col">
-          </div>
-          <div className="col">
-        <label><b>Online Entry Options</b></label><br/>
-        <input type="checkbox" name="check-entry-options" id="wd-chkbox-text-entry"/>
-        <label htmlFor="wd-chkbox-text-entry">Text Entry</label><br/>
 
-        <input type="checkbox" name="check-entry-options" id="wd-chkbox-website-url"/>
-        <label htmlFor="wd-chkbox-website-url">Website URL</label><br/>
+          <div className="space-y-2">
+            <p className="font-medium">Online Entry Options</p>
+            <div className="space-y-1">
+              {[
+                'Text Entry',
+                'Website URL',
+                'Media Recordings',
+                'Student Annotation',
+                'File Uploads'
+              ].map(option => (
+                <div key={option} className="form-check">
+                  <input
+                    type="checkbox"
+                    id={`wd-chkbox-${option.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="form-check-input"
+                  />
+                  <label className="form-check-label">{option}</label>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <input type="checkbox" name="check-entry-options" id="wd-chkbox-media-recordings"/>
-        <label htmlFor="wd-chkbox-media-recordings">Media Recordings</label><br/>
+          <div className="space-y-4">
+            <div>
+              <label className="block font-medium mb-1">Assign To</label>
+              <input
+                type="text"
+                defaultValue="Everyone"
+                className="form-control"
+              />
+            </div>
 
-        <input type="checkbox" name="check-entry-options" id="wd-chkbox-student-annotation"/>
-        <label htmlFor="wd-chkbox-student-annotation">Student Annotation</label><br/>
+            <div>
+              <label className="block font-medium mb-1">Due</label>
+              <input
+                type="date"
+                defaultValue={assignment.due}
+                className="form-control"
+              />
+            </div>
 
-        <input type="checkbox" name="check-entry-options" id="wd-chkbox-file-uploads"/>
-        <label htmlFor="wd-chkbox-file-uploads">File Uploads</label>
-        </div>
-        </div><br/>
-        <div className="row">
-          <div className="col">
-          <label htmlFor="wd-assign-to">Assign</label>
+            <div className="row">
+              <div className="col-6">
+                <label className="block font-medium mb-1">Available from</label>
+                <input
+                  type="date"
+                  defaultValue={assignment.available}
+                  className="form-control"
+                />
+              </div>
+              <div className="col-6">
+                <label className="block font-medium mb-1">Until</label>
+                <input
+                  type="date"
+                  defaultValue={assignment.available}
+                  className="form-control"
+                />
+              </div>
+            </div>
           </div>
-          <div className="col">
-            <label htmlFor="wd-assign-to" ><b>Assign to</b></label><br/>
+
+          <div className="mt-4 border-t pt-4">
+            <Link
+              to={`/Kanbas/Courses/${courseId}/Assignments`}
+              className="btn btn-secondary float-end ms-2"
+            >
+              Cancel
+            </Link>
+            <Link
+              to={`/Kanbas/Courses/${courseId}/Assignments`}
+              className="btn btn-danger float-end"
+            >
+              Save
+            </Link>
           </div>
-        </div>
-        <div className="row">
-          <div className="col">
-          </div>
-          <div className="col">
-            <input type="text" id="wd-assign-to" name="wd-assign-to" placeholder="Everyone"/><br/><br/>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-          </div>
-          <div className="col">
-            <label htmlFor="wd-due-date"><b>Due</b></label><br/>
-            <input type="date" id="wd-due-date" name="wd-due-date"/><br/><br/>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col"></div>
-          <div className="col">
-            <label htmlFor="wd-avaliable-from" ><b>Available from</b></label><br/>
-            <input type="date" id="wd-avaliable-from" className="form-control"/>
-          </div>
-          <div className="col">
-            <label htmlFor="wd-avaliable-until"><b>Until</b></label><br/>
-            <input type="date" id="wd-avaliable-until" className="form-control"/>
-          </div>
-        </div>
-        <hr />
-        <div>
-            <button className="btn btn-secondary float-end m-1">Cancel</button>
-            <button className="btn btn-danger float-end m-1">Save</button>
         </div>
       </div>
     </div>
-);}
+  );
+};

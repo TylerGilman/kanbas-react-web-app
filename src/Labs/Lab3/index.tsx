@@ -49,6 +49,7 @@ export default function Lab3() {
       <SimpleArrays/>
       <ArrayIndexAndLength/>
       <AddingAndRemovingToFromArrays/>
+      <ForLoops/>
       <MapFunction/>
       <FindFunction/>
       <FindIndex/>
