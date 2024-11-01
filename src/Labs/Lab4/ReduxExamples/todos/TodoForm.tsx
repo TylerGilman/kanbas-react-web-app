@@ -13,7 +13,7 @@ export default function TodoForm(
       <button onClick={() => dispatch(updateTodo(todo))}
               id="wd-update-todo-click"> Update </button>
       <input
-        defaultValue={todo.title}
+        value={todo.title}
         onChange={(e) => dispatch(setTodo({ ...todo, title: e.target.value }))}/>
     </li>
 );}

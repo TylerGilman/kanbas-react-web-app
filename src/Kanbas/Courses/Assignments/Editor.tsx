@@ -42,7 +42,7 @@ export default function AssignmentEditor() {
             </label>
             <input
               id="wd-name"
-              defaultValue={assignment.title}
+              value={assignment.title}
               className="form-control"
             />
           </div>
@@ -51,7 +51,7 @@ export default function AssignmentEditor() {
             <textarea
               id="wd-description"
               className="form-control"
-              defaultValue={assignment.description}
+              value={assignment.description}
             />
           </div>
 
@@ -63,7 +63,7 @@ export default function AssignmentEditor() {
               <input
                 id="wd-points"
                 type="number"
-                defaultValue={assignment.points}
+                value={assignment.points}
                 className="form-control"
               />
             </div>
@@ -129,7 +129,7 @@ export default function AssignmentEditor() {
               <label className="block font-medium mb-1">Assign To</label>
               <input
                 type="text"
-                defaultValue="Everyone"
+                value="Everyone"
                 className="form-control"
               />
             </div>
@@ -138,7 +138,7 @@ export default function AssignmentEditor() {
               <label className="block font-medium mb-1">Due</label>
               <input
                 type="date"
-                defaultValue={assignment.due}
+                value={assignment.due}
                 className="form-control"
               />
             </div>
@@ -148,7 +148,7 @@ export default function AssignmentEditor() {
                 <label className="block font-medium mb-1">Available from</label>
                 <input
                   type="date"
-                  defaultValue={assignment.available}
+                  value={assignment.available}
                   className="form-control"
                 />
               </div>
@@ -156,7 +156,7 @@ export default function AssignmentEditor() {
                 <label className="block font-medium mb-1">Until</label>
                 <input
                   type="date"
-                  defaultValue={assignment.available}
+                  value={assignment.available}
                   className="form-control"
                 />
               </div>
