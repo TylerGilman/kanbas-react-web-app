@@ -7,6 +7,7 @@ import  * as db from "../../Database";
 import React, { useState } from "react";
 import { addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
+import FacultyProtectedContent from "../../Account/FacultyProtectedContent"
 
 export default function Modules() {
   const { cid } = useParams();
@@ -33,6 +34,7 @@ export default function Modules() {
               <div className="wd-title p-3 ps-2 bg-secondary">
                 <BsGripVertical className="me-2 fs-3" />
                 {!module.editing && module.name}
+                <FacultyProtectedContent>
                 {module.editing && (
                   <input 
                     className="form-control w-50 d-inline-block"
@@ -54,6 +56,7 @@ export default function Modules() {
                   deleteModule={(moduleId) => dispatch(deleteModule(moduleId))}
                   editModule={(moduleId) => dispatch(editModule(moduleId))} 
                 />
+                </FacultyProtectedContent>
               </div>
             </li>
           ))}

@@ -3,6 +3,7 @@ import { FiBookOpen } from "react-icons/fi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import LessonControlButtons from "../Modules/LessonControlButtons";
+import FacultyProtectedContent from "../../Account/FacultyProtectedContent";
 
 import * as db from "../../Database";
 import { useLocation, Link } from 'react-router-dom';
@@ -36,6 +37,8 @@ export default function AssignmentsScreen() {
           <FaMagnifyingGlass className="position-absolute top-50 end-0 translate-middle-y me-3"/>
         </div>
         <div className="col-3" />
+
+        <FacultyProtectedContent>
         <button 
           id="wd-add-assignment-group" 
           className="btn btn-secondary rounded-1 col-2 m-1 float-end py-2 ml-auto"
@@ -48,6 +51,7 @@ export default function AssignmentsScreen() {
         >
           + Assignment
         </button>
+      </FacultyProtectedContent>
       </div>
 
       <div className="bg-secondary p-3 ps-2">
@@ -56,8 +60,10 @@ export default function AssignmentsScreen() {
           <span>ASSIGNMENTS</span> 
           <div className="float-end">
             <span>40% of Total</span>
+            <FacultyProtectedContent>
             <button className="btn btn-transparent">+</button>
             <BsThreeDotsVertical className="m-2" />
+            </FacultyProtectedContent>
           </div>
         </h3>
       </div>
@@ -68,12 +74,20 @@ export default function AssignmentsScreen() {
             <li className="wd-assignment-list-item wd-lesson list-group-item p-0 fs-5">
               <BsGripVertical />
               <FiBookOpen className="text-success m-2"/>
-              <Link 
-                to={`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`}
-                className="wd-assignment-link text-black"
-              >
-                {assignment.title}
-              </Link>
+                <FacultyProtectedContent
+                  fallback={
+                    <span className="wd-assignment-link text-black">
+                      {assignment.title}
+                    </span>
+                  }
+                >
+                  <Link 
+                    to={`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`}
+                    className="wd-assignment-link text-black"
+                  >
+                    {assignment.title}
+                  </Link>
+                </FacultyProtectedContent>
               <br/>
               <span className="text-danger mx-2">
                 Multiple Modules
@@ -82,7 +96,9 @@ export default function AssignmentsScreen() {
                 <b>Due</b> No due date
               </span> |
               <span className="ms-2">100 pts</span>
+              <FacultyProtectedContent>
               <LessonControlButtons />
+              </FacultyProtectedContent>
             </li>
           </div>
         ))}

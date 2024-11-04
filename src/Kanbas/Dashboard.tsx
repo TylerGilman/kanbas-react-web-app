@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import * as db from "./Database";
+import FacultyProtectedContent from "./Account/FacultyProtectedContent";
 export default function Dashboard(
 { courses, course, setCourse, addNewCourse,
   deleteCourse, updateCourse }: {
@@ -6,9 +9,14 @@ export default function Dashboard(
   addNewCourse: () => void; deleteCourse: (course: any) => void;
   updateCourse: () => void; })
   {
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { enrollments } = db;
+
+
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
+      <FacultyProtectedContent>
       <h5>New Course
           <button className="btn btn-primary float-end"
                   id="wd-add-new-course-click"
@@ -24,10 +32,16 @@ export default function Dashboard(
       <textarea value={course.description} className="form-control" 
              onChange={(e) => setCourse({ ...course, description: e.target.value }) } />
       <hr />
+      </FacultyProtectedContent>
       <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2> <hr />
       <div id="wd-dashboard-courses" className="row">
         <div className="row row-cols-1 row-cols-md-5 g-4">
-          {courses.map((course) => (
+          {courses.filter((course) =>
+              enrollments.some((enrollment) => 
+              enrollment.user === currentUser._id &&
+              enrollment.course === course._id
+              ))
+              .map((course) => (
             <div className="wd-dashboard-course col" style={{ width: "300px" }}>
               <div className="card rounded-3 overflow-hidden">
                 <Link to={`/Kanbas/Courses/${course._id}/Home`}
@@ -40,6 +54,7 @@ export default function Dashboard(
                       {course.description} </p>
                     <button className="btn btn-primary"> Go </button>
 
+                    <FacultyProtectedContent>
                     <button onClick={(event) => {
                               event.preventDefault();
                               deleteCourse(course._id);
@@ -56,6 +71,7 @@ export default function Dashboard(
                       className="btn btn-warning me-2 float-end" >
                       Edit
                     </button>
+                    </FacultyProtectedContent>
 
                   </div>
                 </Link>
