@@ -1,12 +1,12 @@
-import { BsGripVertical } from "react-icons/bs";
+import { BsGripVertical, BsTrash } from "react-icons/bs";
 import { FiBookOpen } from "react-icons/fi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import LessonControlButtons from "../Modules/LessonControlButtons";
 import FacultyProtectedContent from "../../Account/FacultyProtectedContent";
-
-import * as db from "../../Database";
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from "react-redux";
+import { deleteAssignment } from "./reducer";
 import "../../styles.css";
 
 interface Assignment {
@@ -17,13 +17,29 @@ interface Assignment {
 
 export default function AssignmentsScreen() {
   const { pathname } = useLocation();
-  console.log(pathname);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const splitPath = pathname.split('/');
-  const courseId = splitPath[splitPath.length - 2]
-  // Find assignments for the current course
-  const courseAssignments = db.assignments.filter(
-    course => course.course === courseId
+  const courseId = splitPath[splitPath.length - 2];
+
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  console.log("All assignments:", assignments);
+  console.log("Current courseId:", courseId);
+  
+  const courseAssignments = assignments.filter(
+    (assignment: Assignment) => {
+      console.log("Checking assignment:", assignment, "against courseId:", courseId);
+      return assignment.course === courseId;
+    }
   ) || [];
+  
+  console.log("Filtered assignments:", courseAssignments);
+
+  const handleDelete = (assignmentId: string) => {
+    if (window.confirm("Are you sure you want to delete this assignment?")) {
+      dispatch(deleteAssignment(assignmentId));
+    }
+  };
 
   return (
     <div id="wd-assignments" className="container">
@@ -45,12 +61,13 @@ export default function AssignmentsScreen() {
         >
           + Group
         </button>
-        <button 
-          id="wd-add-assignment" 
-          className="btn btn-danger rounded-1 col-2 m-1 float-end py-2"
-        >
-          + Assignment
-        </button>
+      <button 
+        id="wd-add-assignment" 
+        className="btn btn-danger rounded-1 col-2 m-1 float-end py-2"
+        onClick={() => navigate(`/Kanbas/Courses/${courseId}/Assignments/new`)}
+      >
+        + Assignment
+      </button>
       </FacultyProtectedContent>
       </div>
 
@@ -61,6 +78,7 @@ export default function AssignmentsScreen() {
           <div className="float-end">
             <span>40% of Total</span>
             <FacultyProtectedContent>
+
             <button className="btn btn-transparent">+</button>
             <BsThreeDotsVertical className="m-2" />
             </FacultyProtectedContent>
@@ -96,9 +114,14 @@ export default function AssignmentsScreen() {
                 <b>Due</b> No due date
               </span> |
               <span className="ms-2">100 pts</span>
-              <FacultyProtectedContent>
               <LessonControlButtons />
-              </FacultyProtectedContent>
+              <button 
+                onClick={() => handleDelete(assignment._id)}
+                className="btn btn-link text-danger float-end"
+                style={{ textDecoration: 'none' }}
+              >
+                <BsTrash className="mb-2"/>
+              </button>
             </li>
           </div>
         ))}
