@@ -36,8 +36,7 @@ export default function Kanbas() {
       setCourses(courses.map(c => 
         c._id === course._id ? updatedCourse : c
       ));
-      // Reset form
-      setCourse({ name: "", description: "" });
+      setCourse({ name: "", description: "" }); // Reset form
     } catch (error) {
       console.error(error);
     }
@@ -47,8 +46,7 @@ export default function Kanbas() {
     try {
       const newCourse = await userClient.createCourse(course);
       setCourses([...courses, newCourse]);
-      // Reset form
-      setCourse({ name: "", description: "" });
+      setCourse({ name: "", description: "" }); // Reset form
     } catch (error) {
       console.error(error);
     }
@@ -64,8 +62,12 @@ export default function Kanbas() {
   };
 
   const deleteCourse = async (courseId: string) => {
-    const status = await courseClient.deleteCourse(courseId);
-    setCourses(courses.filter((course) => course._id !== courseId));
+    try {
+      await courseClient.deleteCourse(courseId);
+      setCourses(courses.filter((course) => course._id !== courseId));
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -74,38 +76,48 @@ export default function Kanbas() {
 
   return (
     <Session>
-      <div id="wd-kanbas">
-        <KanbasNavigation />
-        <div className="wd-main-content-offset p-3">
-          <Routes>
-            <Route path="/" element={<Navigate to="Account" />} />
-            <Route path="/Account/*" element={<Account />} />
-            <Route path="/Dashboard" element={
-              <ProtectedRoute>
-                <Dashboard 
-                  courses={courses}
-                  course={course}
-                  setCourse={setCourse}
-                  addNewCourse={addNewCourse}
-                  deleteCourse={deleteCourse}
-                  updateCourse={updateCourse}
-                />
-              </ProtectedRoute>
-            } />
-            <Route path="/Courses/:cid/*" element={
-              <ProtectedCourseRoute courses={courses} />
-            } />
-            <Route path="/Calendar" element={
-              <ProtectedRoute>
-                <h1>Calendar</h1>
-              </ProtectedRoute>
-            } />
-            <Route path="/Inbox" element={
-              <ProtectedRoute>
-                <h1>Inbox</h1>
-              </ProtectedRoute>
-            } />
-          </Routes>
+      <div id="wd-kanbas" className="container-fluid">
+        <div className="row vh-100">
+          {/* Sidebar Navigation */}
+          <div className="col-2 col-md-1 bg-light border-end p-0 d-flex flex-column">
+            <KanbasNavigation />
+          </div>
+
+          {/* Main Content */}
+          <div className="col-10 col-md-11 p-3 overflow-auto">
+            <Routes>
+              <Route path="/" element={<Navigate to="Account" />} />
+              <Route path="/Account/*" element={<Account />} />
+              <Route
+                path="/Dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard 
+                      courses={courses}
+                      course={course}
+                      setCourse={setCourse}
+                      addNewCourse={addNewCourse}
+                      deleteCourse={deleteCourse}
+                      updateCourse={updateCourse}
+                    />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/Courses/:cid/*" element={
+                <ProtectedCourseRoute courses={courses} />
+              } />
+              <Route path="/Calendar" element={
+                <ProtectedRoute>
+                  <h1>Calendar</h1>
+                </ProtectedRoute>
+              } />
+              <Route path="/Inbox" element={
+                <ProtectedRoute>
+                  <h1>Inbox</h1>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </div>
         </div>
       </div>
     </Session>

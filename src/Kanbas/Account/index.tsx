@@ -8,12 +8,12 @@ export default function Account() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   return (
     <div id="wd-account-screen">
-      <table>
-        <tr>
-          <td valign="top">
+      <div className="container">
+        <div className="row">
+          <div className="col">
             <AccountNavigation />
-          </td>
-          <td valign="top">
+          </div>
+          <div className="col">
             <Routes>
               <Route path="/"
                      element={<Navigate to="/Kanbas/Account/Signin" />} />
@@ -21,8 +21,8 @@ export default function Account() {
               <Route path="/Profile" element={<Profile />} />
               <Route path="/Signup" element={<Signup />} />
             </Routes>
-          </td>
-        </tr>
-      </table>
+          </div>
+        </div>
+      </div>
     </div>
 );}

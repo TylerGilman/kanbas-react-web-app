@@ -1,33 +1,51 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments } from "../../Database";
 
-const initialState = {
-  assignments: assignments
+
+interface Assignment {
+  _id: string;
+  title: string;
+  description?: string;
+  points?: number;
+  dueDate?: string;
+}
+
+interface AssignmentsState {
+  assignments: Assignment[];
+}
+
+const initialState: AssignmentsState = {
+  assignments: []
 };
 
 const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    addAssignment: (state, action) => {
-      console.log("Adding assignment in reducer:", action.payload);
-      console.log("Current state:", state.assignments);
-      state.assignments.push(action.payload);
-      console.log("New state:", state.assignments);
-    },
-    updateAssignment: (state, action) => {
-      state.assignments = state.assignments.map((assignment) => 
-        assignment._id === action.payload._id ? action.payload : assignment
-      );
+    setAssignments: (state, action) => {
+      console.log("[REDUCER] Setting assignments:", action.payload);
+      state.assignments = action.payload;
     },
     deleteAssignment: (state, action) => {
       state.assignments = state.assignments.filter(
-        (assignment) => assignment._id !== action.payload
+        assignment => assignment._id !== action.payload
+      );
+    },
+    addAssignment: (state, action) => {
+      state.assignments.push(action.payload);
+    },
+    updateAssignment: (state, action) => {
+      state.assignments = state.assignments.map((assignment) =>
+        assignment._id === action.payload._id ? action.payload : assignment
       );
     }
   }
 });
 
-export const { addAssignment, updateAssignment, deleteAssignment } = 
-  assignmentsSlice.actions;
+export const {
+  setAssignments,
+  addAssignment,
+  deleteAssignment,
+  updateAssignment
+} = assignmentsSlice.actions;
+
 export default assignmentsSlice.reducer;
