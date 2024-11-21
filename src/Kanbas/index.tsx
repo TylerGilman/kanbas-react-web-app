@@ -9,6 +9,7 @@ import StudentProtectedRoute from "./Account/StudentProtectedRoute";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
 import * as userClient from "./Account/client";
+import * as courseClient from "./Courses/client";
 
 function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
   const { cid } = useParams();
@@ -28,6 +29,19 @@ export default function Kanbas() {
     description: ""
   });
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  const updateCourse = async () => {
+    try {
+      const updatedCourse = await courseClient.updateCourse(course);
+      setCourses(courses.map(c => 
+        c._id === course._id ? updatedCourse : c
+      ));
+      // Reset form
+      setCourse({ name: "", description: "" });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const addNewCourse = async () => {
     try {
@@ -49,6 +63,11 @@ export default function Kanbas() {
     }
   };
 
+  const deleteCourse = async (courseId: string) => {
+    const status = await courseClient.deleteCourse(courseId);
+    setCourses(courses.filter((course) => course._id !== courseId));
+  };
+
   useEffect(() => {
     fetchCourses();
   }, [currentUser]);
@@ -68,6 +87,8 @@ export default function Kanbas() {
                   course={course}
                   setCourse={setCourse}
                   addNewCourse={addNewCourse}
+                  deleteCourse={deleteCourse}
+                  updateCourse={updateCourse}
                 />
               </ProtectedRoute>
             } />

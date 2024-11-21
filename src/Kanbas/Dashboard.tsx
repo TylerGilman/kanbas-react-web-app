@@ -14,16 +14,19 @@ interface DashboardProps {
   course: Course;
   setCourse: (course: Course) => void;
   addNewCourse: () => void;
+  deleteCourse: (courseId: string) => void;
+  updateCourse: () => void;
 }
 
 export default function Dashboard({ 
   courses,
   course, 
   setCourse, 
-  addNewCourse 
+  addNewCourse,
+  deleteCourse,
+  updateCourse 
 }: DashboardProps) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1>
@@ -38,6 +41,13 @@ export default function Dashboard({
             onClick={addNewCourse}
           >
             Add
+          </button>
+          <button 
+            className="btn btn-warning float-end me-2"
+            onClick={updateCourse}
+            id="wd-update-course-click"
+          >
+            Update
           </button>
         </h5>
         <input 
@@ -79,6 +89,30 @@ export default function Dashboard({
                       {course.description}
                     </p>
                     <button className="btn btn-primary">Go</button>
+                    <FacultyProtectedContent>
+                      <button
+                        onClick={(event) => {
+                          event.preventDefault();
+                          if (course._id) {
+                            deleteCourse(course._id);
+                          }
+                        }}
+                        className="btn btn-danger float-end"
+                        id="wd-delete-course-click"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        id="wd-edit-course-click"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setCourse(course);
+                        }}
+                        className="btn btn-warning me-2 float-end"
+                      >
+                        Edit
+                      </button>
+                    </FacultyProtectedContent>
                   </div>
                 </Link>
               </div>
