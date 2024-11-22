@@ -28,24 +28,16 @@ export default function AssignmentsScreen() {
   const splitPath = pathname.split('/');
   const courseId = splitPath[splitPath.length - 2];
 
-  console.log("[CLIENT] AssignmentsScreen - Initial render");
-  console.log("[CLIENT] Current pathname:", pathname);
-  console.log("[CLIENT] Extracted courseId:", courseId);
-
   const { assignments } = useSelector((state: any) => {
-    console.log("[CLIENT] Current redux state:", state);
     return state.assignmentsReducer;
   });
 
   const fetchAssignments = async () => {
     try {
       setLoading(true);
-      console.log("[CLIENT] Fetching assignments for course:", courseId);
       const assignments = await client.findAssignmentsForCourse(courseId);
-      console.log("[CLIENT] Received assignments:", assignments);
       dispatch(setAssignments(assignments));
     } catch (err) {
-      console.error("[CLIENT] Error fetching assignments:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch assignments");
     } finally {
       setLoading(false);
@@ -53,7 +45,6 @@ export default function AssignmentsScreen() {
   };
 
   useEffect(() => {
-    console.log("[CLIENT] useEffect triggered with courseId:", courseId);
     if (courseId) {
       fetchAssignments();
     }
@@ -65,7 +56,6 @@ export default function AssignmentsScreen() {
         await client.deleteAssignment(assignmentId);
         dispatch(deleteAssignment(assignmentId));
       } catch (error) {
-        console.error("[CLIENT] Error deleting assignment:", error);
         setError("Failed to delete assignment");
       }
     }

@@ -5,7 +5,6 @@ const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
 const API_BASE_URL = `${REMOTE_SERVER}/api`;
 
 export const fetchEnrollments = async (userId: string) => {
-  // Changed to match the users API endpoint for enrollments
   const response = await axiosWithCredentials.get(`${API_BASE_URL}/users/${userId}/enrollments`);
   return response.data;
 };

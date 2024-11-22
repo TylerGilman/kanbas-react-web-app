@@ -28,7 +28,6 @@ export default function CoursesNavigation() {
     <div id="wd-courses-navigation" className="list-group fs-5 rounded-0">
       {links.map((link) => {
         const isActive = pathname.includes(`/Kanbas/Courses/${currentCourse}/${link.path}`);
-        console.log("Current Page:", currentPage, "Link Path:", link.path, "Is Active:", isActive);
         return (
           <Link
             key={`course-nav-${link.id}`}

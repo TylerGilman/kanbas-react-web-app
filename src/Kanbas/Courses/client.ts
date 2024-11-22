@@ -20,7 +20,6 @@ export const updateCourse = async (course: any) => {
   return response.data;
 };
 
-// Remove duplicate and keep fetchAllCourses for consistency with other client files
 export const fetchAllCourses = async () => {
   const response = await axiosWithCredentials.get(COURSES_API);
   return response.data;

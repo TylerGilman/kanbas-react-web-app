@@ -23,7 +23,6 @@ export default function AssignmentEditor() {
 
 const fetchAssignment = async () => {
   if (!aid || aid === "new") {
-    console.log("[DEBUG] Skipping fetch for new assignment");
     return;
   }
 
@@ -39,7 +38,6 @@ const fetchAssignment = async () => {
       course: response.course || cid || "",
     });
   } catch (error: any) {
-    console.error("[CLIENT] Error fetching assignment:", error);
     if (error.response?.status === 404) {
       alert("Assignment not found!");
     } else {
@@ -50,7 +48,6 @@ const fetchAssignment = async () => {
 };
 
   useEffect(() => {
-  console.log("[DEBUG] aid:", aid); // Log the assignment ID
   fetchAssignment();
 }, [aid, fetchAssignment]);
 
@@ -68,14 +65,12 @@ const handleSubmit = async () => {
       // Ensure aid is a string for updating an existing assignment
       const response = await client.updateAssignment(aid, assignment as Assignment);
       dispatch(updateAssignment(response));
-      console.log("[CLIENT] Assignment updated:", response);
     } else {
       throw new Error("Assignment ID is undefined.");
     }
 
     navigate(`/Kanbas/Courses/${cid}/Assignments`);
   } catch (error: any) {
-    console.error("[CLIENT] Error submitting assignment:", error);
     alert("Failed to save assignment. Please try again.");
   }
 };

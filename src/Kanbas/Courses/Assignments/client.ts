@@ -6,17 +6,13 @@ const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
 const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
 
 export const findAssignmentsForCourse = async (courseId: string) => {
-  console.log("[CLIENT] About to fetch assignments for course:", courseId);
-  console.log("[CLIENT] Full URL:", `${COURSES_API}/${courseId}/assignments`);
     
   try {
     const response = await axios.get(
       `${COURSES_API}/${courseId}/assignments`
     );
-    console.log("[CLIENT] Response received:", response.data);
     return response.data;
   } catch (error) {
-    console.error("[CLIENT] Error fetching assignments:", error);
     throw error;
   }
 };
@@ -42,7 +38,6 @@ export const findAssignmentById = async (assignmentId: string) => {
 };
 
 export const createAssignment = async (courseId: string, assignment: Omit<Assignment, '_id'>) => {
-  console.log("[CLIENT] Creating assignment for course:", courseId, assignment);
   const response = await axios.post(
     `${COURSES_API}/${courseId}/assignments`, 
     assignment
@@ -51,7 +46,6 @@ export const createAssignment = async (courseId: string, assignment: Omit<Assign
 };
 
 export const updateAssignment = async (assignmentId: string, assignment: Assignment) => {
-  console.log("[CLIENT] Updating assignment:", assignmentId, assignment);
   const response = await axios.put(
     `${ASSIGNMENTS_API}/${assignmentId}`, 
     assignment
