@@ -23,7 +23,7 @@ export default function KanbasNavigation() {
     },
     { 
       label: "Courses", 
-      path: "/Kanbas/Courses", 
+      path: "/Kanbas/Dashboard", 
       icon: LiaBookSolid,
       id: "courses"
     },

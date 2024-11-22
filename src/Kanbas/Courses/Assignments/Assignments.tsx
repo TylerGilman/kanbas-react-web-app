@@ -79,62 +79,105 @@ export default function AssignmentsScreen() {
     return <div className="alert alert-danger">Error: {error}</div>;
   }
 
-  return (
-    <div id="wd-assignments" className="container">
-<div className="row align-items-center">
-  <div className="col-4 position-relative">
-    {/* Search Bar */}
-  </div>
-  <div className="col-3"></div>
-  <div className="col-5 text-end">
-    <FacultyProtectedContent>
-      {/* Buttons */}
-    </FacultyProtectedContent>
-  </div>
-</div>
-      {/* Assignments Header */}
-  <div className="bg-secondary p-3">
-    <h3 id="wd-assignments-title" className="d-flex justify-content-between align-items-center">
-      <span>
-        <BsGripVertical /> ASSIGNMENTS
-      </span>
-      <div className="d-flex align-items-center">
-        <span className="me-2">40% of Total</span>
+return (
+  <div id="wd-assignments" className="container">
+    {/* Top Search and Action Bar */}
+    <div className="row align-items-center mb-3">
+      <div className="col-4 position-relative">
+        <div className="input-group">
+          <span className="input-group-text bg-transparent">
+            <FaMagnifyingGlass />
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search for Assignment"
+          />
+        </div>
+      </div>
+      <div className="col-3"></div>
+      <div className="col-5 text-end">
         <FacultyProtectedContent>
-          <button
-            className="btn btn-transparent"
+          <button className="btn btn-light border-dark me-2">
+            Group
+          </button>
+          <button 
+            className="btn btn-danger me-2"
             onClick={() => navigate(`/Kanbas/Courses/${courseId}/Assignments/new`)}
           >
-            +
+            <i className="fas fa-plus"></i> Assignment
           </button>
-          <BsThreeDotsVertical className="m-2" />
+          <div className="dropdown d-inline">
+            <button 
+              className="btn btn-secondary"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <BsThreeDotsVertical />
+            </button>
+            <ul className="dropdown-menu">
+              <li><a className="dropdown-item" href="#">Edit Assignment Dates</a></li>
+              <li><a className="dropdown-item" href="#">Speed Grader</a></li>
+              <li><a className="dropdown-item" href="#">Duplicate</a></li>
+            </ul>
+          </div>
         </FacultyProtectedContent>
       </div>
-    </h3>
-  </div>
-
-      {/* Assignment List */}
-      <ul id="wd-assignment-list" className="list-group rounded-0">
-        {assignments.map((assignment: Assignment) => (
-          <li key={assignment._id} className="list-group-item d-flex align-items-center">
-            <BsGripVertical className="me-2" />
-            <FiBookOpen className="text-success me-2" />
-            <Link to={`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`} className="flex-grow-1">
-              {assignment.title}
-            </Link>
-            <span className="text-danger mx-2">Multiple Modules</span> |
-            <span className="ms-2"><b>Due:</b> {assignment.dueDate || 'No due date'}</span> |
-            <span className="ms-2">{assignment.points || 100} pts</span>
-            <LessonControlButtons />
-            <button 
-              className="btn btn-link text-danger ms-auto"
-              onClick={() => handleDelete(assignment._id)}
-            >
-              <BsTrash />
-            </button>
-          </li>
-        ))}
-      </ul>
     </div>
-  );
+
+    {/* Assignments Header */}
+    <div className="bg-secondary p-3">
+      <h3 id="wd-assignments-title" className="d-flex justify-content-between align-items-center mb-0">
+        <span>
+          <BsGripVertical className="me-2" /> ASSIGNMENTS
+        </span>
+        <div className="d-flex align-items-center">
+          <span className="me-3">40% of Total</span>
+          <FacultyProtectedContent>
+            <div className="dropdown d-inline">
+              <button 
+                className="btn btn-secondary"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <BsThreeDotsVertical />
+              </button>
+              <ul className="dropdown-menu">
+                <li><a className="dropdown-item" href="#">Edit</a></li>
+                <li><a className="dropdown-item" href="#">Speed Grader</a></li>
+              </ul>
+            </div>
+          </FacultyProtectedContent>
+        </div>
+      </h3>
+    </div>
+
+    {/* Assignment List */}
+    <ul id="wd-assignment-list" className="list-group rounded-0">
+      {assignments.map((assignment: Assignment) => (
+        <li key={assignment._id} className="list-group-item d-flex align-items-center">
+          <BsGripVertical className="me-2" />
+          <FiBookOpen className="text-success me-2" />
+          <Link to={`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`} className="flex-grow-1">
+            {assignment.title}
+          </Link>
+          <span className="text-danger mx-2">Multiple Modules</span> |
+          <span className="ms-2"><b>Due:</b> {assignment.dueDate || 'No due date'}</span> |
+          <span className="ms-2">{assignment.points || 100} pts</span>
+          <LessonControlButtons />
+          <FacultyProtectedContent>
+          <button 
+            className="btn btn-link text-danger ms-auto"
+            onClick={() => handleDelete(assignment._id)}
+          >
+            <BsTrash />
+          </button>
+          </FacultyProtectedContent>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 }

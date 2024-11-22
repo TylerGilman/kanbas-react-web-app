@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Account from "./Account";
-import Dashboard, { Course } from "./Dashboard";
+import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
 import Courses from "./Courses";
 import StudentProtectedRoute from "./Account/StudentProtectedRoute";
@@ -10,6 +10,14 @@ import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
 import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
+import { setEnrollments } from "./Courses/Enrollments/reducer";
+
+// Add Course type
+interface Course {
+  _id: string;
+  name: string;
+  description: string;
+}
 
 function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
   const { cid } = useParams();
@@ -23,101 +31,107 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
 }
 
 export default function Kanbas() {
+  const dispatch = useDispatch();
   const [courses, setCourses] = useState<Course[]>([]);
-  const [course, setCourse] = useState<Course>({
-    name: "",
-    description: ""
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [course, setCourse] = useState<Course>({ 
+    _id: "", 
+    name: "", 
+    description: "" 
   });
+  
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  const updateCourse = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
-      const updatedCourse = await courseClient.updateCourse(course);
-      setCourses(courses.map(c => 
-        c._id === course._id ? updatedCourse : c
-      ));
-      setCourse({ name: "", description: "" }); // Reset form
-    } catch (error) {
-      console.error(error);
-    }
-  };
+      if (currentUser) {
+        // Fetch all courses for the all courses view
+        const allCoursesData = await courseClient.fetchAllCourses();
+        setAllCourses(allCoursesData);
 
-  const addNewCourse = async () => {
-    try {
-      const newCourse = await userClient.createCourse(course);
-      setCourses([...courses, newCourse]);
-      setCourse({ name: "", description: "" }); // Reset form
-    } catch (error) {
-      console.error(error);
-    }
-  };
+        // Fetch enrolled courses using the existing endpoint
+        const enrolledCourses = await userClient.findMyCourses();
+        setCourses(enrolledCourses);
 
-  const fetchCourses = async () => {
-    try {
-      const courses = await userClient.findMyCourses();
-      setCourses(courses);
+        // Create enrollment objects for Redux state
+        const enrollmentObjects = enrolledCourses.map((course: Course) => ({
+          _id: Date.now().toString(),
+          user: currentUser._id,
+          course: course._id
+        }));
+        dispatch(setEnrollments(enrollmentObjects));
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching courses:", error);
     }
-  };
-
-  const deleteCourse = async (courseId: string) => {
-    try {
-      await courseClient.deleteCourse(courseId);
-      setCourses(courses.filter((course) => course._id !== courseId));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [currentUser, dispatch]);
 
   useEffect(() => {
-    fetchCourses();
-  }, [currentUser]);
+    if (currentUser) {
+      fetchCourses();
+    }
+  }, [currentUser, fetchCourses]);
 
   return (
     <Session>
-      <div id="wd-kanbas" className="container-fluid">
-        <div className="row vh-100">
-          {/* Sidebar Navigation */}
-          <div className="col-2 col-md-1 bg-light border-end p-0 d-flex flex-column">
-            <KanbasNavigation />
-          </div>
-
-          {/* Main Content */}
-          <div className="col-10 col-md-11 p-3 overflow-auto">
-            <Routes>
-              <Route path="/" element={<Navigate to="Account" />} />
-              <Route path="/Account/*" element={<Account />} />
-              <Route
-                path="/Dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard 
-                      courses={courses}
-                      course={course}
-                      setCourse={setCourse}
-                      addNewCourse={addNewCourse}
-                      deleteCourse={deleteCourse}
-                      updateCourse={updateCourse}
-                    />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/Courses/:cid/*" element={
-                <ProtectedCourseRoute courses={courses} />
-              } />
-              <Route path="/Calendar" element={
+      <div id="wd-kanbas">
+        <KanbasNavigation />
+        <div className="wd-main-content-offset">
+          <Routes>
+            <Route path="/" element={<Navigate to="Account" />} />
+            <Route path="/Account/*" element={<Account />} />
+            <Route 
+              path="/Dashboard" 
+              element={
                 <ProtectedRoute>
-                  <h1>Calendar</h1>
+                  <Dashboard
+                    courses={allCourses}
+                    enrolled_courses={courses}
+                    course={course}
+                    setCourse={setCourse}
+                    fetchCourses={fetchCourses}
+                    addNewCourse={async () => {
+                      try {
+                        await courseClient.createCourse(course);
+                        await fetchCourses();  // Fetch updated courses immediately
+                      } catch (error) {
+                        console.error(error);
+                      }
+                    }}
+                    deleteCourse={async (courseId: string) => {
+                      try {
+                        await courseClient.deleteCourse(courseId);
+                        await fetchCourses();  // Fetch updated courses immediately
+                      } catch (error) {
+                        console.error(error);
+                      }
+                    }}
+                    updateCourse={async () => {
+                      try {
+                        await courseClient.updateCourse(course);
+                        await fetchCourses();  // Fetch updated courses immediately
+                      } catch (error) {
+                        console.error(error);
+                      }
+                    }}
+                  />
                 </ProtectedRoute>
-              } />
-              <Route path="/Inbox" element={
-                <ProtectedRoute>
-                  <h1>Inbox</h1>
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </div>
+              }
+            />
+            <Route path="/Courses/:cid/*" element={
+              <ProtectedCourseRoute courses={courses} />
+            } />
+            <Route path="/Calendar" element={
+              <ProtectedRoute>
+                <h1>Calendar</h1>
+              </ProtectedRoute>
+            } />
+            <Route path="/Inbox" element={
+              <ProtectedRoute>
+                <h1>Inbox</h1>
+              </ProtectedRoute>
+            } />
+          </Routes>
         </div>
       </div>
     </Session>

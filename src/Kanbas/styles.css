@@ -7,11 +7,29 @@ body * {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Base styles for layout */
+.wd-main-content-offset {
+  position: relative;
+  padding: 1rem;
+  transition: padding-left 0.3s;
+}
+
 /* Responsive Layout */
 @media (min-width: 768px) {
   #wd-kanbas .wd-main-content-offset {
-    padding-left: 140px !important;
+    margin-left: 85px !important;
+    padding-left: 55px !important;
   }
+}
+
+/* Navigation styles */
+#wd-kanbas nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1000;
+  width: 85px;
 }
 
 .list-group-item.active-link {

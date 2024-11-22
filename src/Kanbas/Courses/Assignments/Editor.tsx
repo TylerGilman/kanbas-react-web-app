@@ -20,6 +20,7 @@ export default function AssignmentEditor() {
     course: cid || ""
   });
 
+
 const fetchAssignment = async () => {
   if (!aid || aid === "new") {
     console.log("[DEBUG] Skipping fetch for new assignment");
@@ -51,7 +52,7 @@ const fetchAssignment = async () => {
   useEffect(() => {
   console.log("[DEBUG] aid:", aid); // Log the assignment ID
   fetchAssignment();
-}, [aid]);
+}, [aid, fetchAssignment]);
 
   if (!cid) {
     return <div>Invalid course ID</div>;
