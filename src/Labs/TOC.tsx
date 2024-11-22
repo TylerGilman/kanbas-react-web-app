@@ -39,6 +39,12 @@ export default function TOC() {
         </a>
       </li>
       <li className="nav-item">
+        <a id="wd-kanbas-server-link" href="https://kanbas-node-server-app-1-brra.onrender.com"
+          className="nav-link">
+          Kanbas Server Link
+        </a>
+      </li>
+      <li className="nav-item">
         <a id="wd-k" href="#/Kanbas" className="nav-link">
           Kanbas
         </a>
