@@ -71,41 +71,45 @@ export default function Kanbas() {
  };
 
 
-  const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    try {
-      await courseClient.updateCourse({
-        ...course,
-        _id: course._id
-      });
-      await fetchCourses(); 
-    } catch (error) {
-      console.error(error);
-    }
-  };
+const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  if (!course.name.trim() || !course.description.trim()) {
+    alert("Name and description are required");
+    return;
+  }
+  try {
+    await courseClient.updateCourse(course);
+    await fetchCourses();
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update course");
+  }
+};
 
-  const deleteCourse = async (courseId: string) => {
-    try {
-      const status = await courseClient.deleteCourse(courseId);
-      setCourses(courses.filter((c) => c._id !== courseId));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+const deleteCourse = async (courseId: string) => {
+  if (!courseId) return;
+  try {
+    await courseClient.deleteCourse(courseId);
+    setCourses(courses.filter((c) => c._id !== courseId));
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-  const addNewCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    try {
-      const newCourse = await courseClient.createCourse({
-        ...course,
-        _id: undefined // Remove _id for new course creation
-      });
-      setCourses([...courses, newCourse]);
-      setCourse({ _id: "", name: "", description: "", enrolled: false }); // Reset form
-    } catch (error) {
-      console.error(error);
-    }
-  };
+const addNewCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+  try {
+    const newCourse = await courseClient.createCourse({
+      name: course.name,
+      description: course.description,
+      // Remove spread operator and _id to avoid undefined id
+    });
+    setCourses([...courses, {...newCourse, enrolled: false}]);
+    setCourse({ _id: "", name: "", description: "", enrolled: false }); // Reset form
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const updateEnrollment = async (courseId: string, enrolled: boolean) => {
   try {

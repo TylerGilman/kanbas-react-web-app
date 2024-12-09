@@ -10,7 +10,7 @@ export default function FacultyProtectedContent({
 }) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   
-  if (currentUser?.role === "FACULTY") {
+  if (currentUser?.role !== "STUDENT") {
     return <>{children}</>;
   }
   
