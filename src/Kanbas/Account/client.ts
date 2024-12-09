@@ -41,6 +41,12 @@ export const createCourse = async (course: any) => {
   );
   return response.data;
 };
+
+export const findUserById = async (id: string) => {
+  const response = await axios.get(`${USERS_API}/${id}`);
+  return response.data;
+};
+
 export const findUsersByRole = async (role: string) => {
   const response = await
     axios.get(`${USERS_API}?role=${role}`);
