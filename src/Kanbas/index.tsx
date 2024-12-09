@@ -179,7 +179,7 @@ useEffect(() => {
               }
             />
             <Route path="/Courses/:cid/*" element={
-              <ProtectedCourseRoute courses={courses} />
+              <Courses courses={courses} />
             } />
             <Route path="/Calendar" element={
               <ProtectedRoute>

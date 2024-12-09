@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+ul.list-group {
+  list-style: none;
+  padding-left: 0;
+}
+
+ul.list-group li {
+  padding: 0.5rem 1rem;
+  position: relative;
+}
+
+ul.list-group li .active-link {
+  font-weight: bold;
+  color: black;
+}
+
+ul.list-group li .active-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 4px;
+  background-color: black;
+}

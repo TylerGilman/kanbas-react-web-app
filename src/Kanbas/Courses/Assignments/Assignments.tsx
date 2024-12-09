@@ -1,173 +1,99 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { setAssignments, deleteAssignment } from "./reducer";
-import { BsGripVertical, BsTrash, BsThreeDotsVertical } from "react-icons/bs";
-import { FiBookOpen } from "react-icons/fi";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import * as client from "./client";
-import FacultyProtectedContent from "../../Account/FacultyProtectedContent";
-import LessonControlButtons from "../Modules/LessonControlButtons";
+import { BsTrash, BsPencilSquare } from "react-icons/bs";
+import { FaPlus } from "react-icons/fa";
 
 interface Assignment {
   _id: string;
   title: string;
-  course: string;
-  description?: string;
-  dueDate?: string;
-  points?: number;
+  description: string;
+  points: number;
+  dueDate: string;
 }
 
-export default function AssignmentsScreen() {
+const Assignments: React.FC = () => {
+  const { courseId } = useParams<{ courseId: string }>();
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const splitPath = pathname.split('/');
-  const courseId = splitPath[splitPath.length - 2];
-
-  const { assignments } = useSelector((state: any) => {
-    return state.assignmentsReducer;
-  });
-
-  const fetchAssignments = async () => {
-    try {
-      setLoading(true);
-      const assignments = await client.findAssignmentsForCourse(courseId);
-      dispatch(setAssignments(assignments));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch assignments");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    if (courseId) {
-      fetchAssignments();
-    }
+    const fetchAssignments = async () => {
+      try {
+        const data = await client.findAssignmentsForCourse(courseId!);
+        setAssignments(data);
+      } catch (error) {
+        console.error("Error fetching assignments:", error);
+      }
+    };
+    fetchAssignments();
   }, [courseId]);
 
-  const handleDelete = async (assignmentId: string) => {
+  const deleteAssignment = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
       try {
-        await client.deleteAssignment(assignmentId);
-        dispatch(deleteAssignment(assignmentId));
+        await client.deleteAssignment(id);
+        setAssignments(assignments.filter((a) => a._id !== id));
       } catch (error) {
-        setError("Failed to delete assignment");
+        console.error("Error deleting assignment:", error);
       }
     }
   };
 
-  if (loading) {
-    return <div>Loading assignments...</div>;
-  }
-
-  if (error) {
-    return <div className="alert alert-danger">Error: {error}</div>;
-  }
-
-return (
-  <div id="wd-assignments" className="container">
-    {/* Top Search and Action Bar */}
-    <div className="row align-items-center mb-3">
-      <div className="col-4 position-relative">
-        <div className="input-group">
-          <span className="input-group-text bg-transparent">
-            <FaMagnifyingGlass />
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search for Assignment"
-          />
-        </div>
+  return (
+    <div className="container mt-4">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>Assignments</h2>
+        <button
+          className="btn btn-danger"
+          onClick={() => navigate(`/courses/${courseId}/assignments/new`)}
+        >
+          <FaPlus className="me-2" /> New Assignment
+        </button>
       </div>
-      <div className="col-3"></div>
-      <div className="col-5 text-end">
-        <FacultyProtectedContent>
-          <button className="btn btn-light border-dark me-2">
-            Group
-          </button>
-          <button 
-            className="btn btn-danger me-2"
-            onClick={() => navigate(`/Kanbas/Courses/${courseId}/Assignments/new`)}
-          >
-            <i className="fas fa-plus"></i> Assignment
-          </button>
-          <div className="dropdown d-inline">
-            <button 
-              className="btn btn-secondary"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <BsThreeDotsVertical />
-            </button>
-            <ul className="dropdown-menu">
-              <li><a className="dropdown-item" href="#">Edit Assignment Dates</a></li>
-              <li><a className="dropdown-item" href="#">Speed Grader</a></li>
-              <li><a className="dropdown-item" href="#">Duplicate</a></li>
-            </ul>
-          </div>
-        </FacultyProtectedContent>
-      </div>
+      {assignments.length === 0 ? (
+        <div className="alert alert-info">No assignments available</div>
+      ) : (
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Points</th>
+              <th>Due Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assignments.map((assignment) => (
+              <tr key={assignment._id}>
+                <td>{assignment.title}</td>
+                <td>{assignment.description}</td>
+                <td>{assignment.points}</td>
+                <td>{new Date(assignment.dueDate).toLocaleDateString()}</td>
+                <td>
+                  <button
+                    className="btn btn-sm btn-primary me-2"
+                    onClick={() =>
+                      navigate(`/courses/${courseId}/assignments/${assignment._id}`)
+                    }
+                  >
+                    <BsPencilSquare /> Edit
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => deleteAssignment(assignment._id)}
+                  >
+                    <BsTrash /> Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
+  );
+};
 
-    {/* Assignments Header */}
-    <div className="bg-secondary p-3">
-      <h3 id="wd-assignments-title" className="d-flex justify-content-between align-items-center mb-0">
-        <span>
-          <BsGripVertical className="me-2" /> ASSIGNMENTS
-        </span>
-        <div className="d-flex align-items-center">
-          <span className="me-3">40% of Total</span>
-          <FacultyProtectedContent>
-            <div className="dropdown d-inline">
-              <button 
-                className="btn btn-secondary"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <BsThreeDotsVertical />
-              </button>
-              <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="#">Edit</a></li>
-                <li><a className="dropdown-item" href="#">Speed Grader</a></li>
-              </ul>
-            </div>
-          </FacultyProtectedContent>
-        </div>
-      </h3>
-    </div>
-
-    {/* Assignment List */}
-    <ul id="wd-assignment-list" className="list-group rounded-0">
-      {assignments.map((assignment: Assignment) => (
-        <li key={assignment._id} className="list-group-item d-flex align-items-center">
-          <BsGripVertical className="me-2" />
-          <FiBookOpen className="text-success me-2" />
-          <Link to={`/Kanbas/Courses/${courseId}/Assignments/${assignment._id}`} className="flex-grow-1">
-            {assignment.title}
-          </Link>
-          <span className="text-danger mx-2">Multiple Modules</span> |
-          <span className="ms-2"><b>Due:</b> {assignment.dueDate || 'No due date'}</span> |
-          <span className="ms-2">{assignment.points || 100} pts</span>
-          <LessonControlButtons />
-          <FacultyProtectedContent>
-          <button 
-            className="btn btn-link text-danger ms-auto"
-            onClick={() => handleDelete(assignment._id)}
-          >
-            <BsTrash />
-          </button>
-          </FacultyProtectedContent>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-}
+export default Assignments;

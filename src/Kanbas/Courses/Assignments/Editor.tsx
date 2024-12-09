@@ -1,157 +1,119 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addAssignment, updateAssignment } from "./reducer";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import * as client from "./client";
-import type { Assignment } from "./client";
 
-export default function AssignmentEditor() {
-  const { cid, aid } = useParams();
+interface Assignment {
+  title: string;
+  description: string;
+  points: number;
+  dueDate: string;
+  available: string;
+}
+
+const AssignmentEditor: React.FC = () => {
+  const { courseId, assignmentId } = useParams<{ courseId: string; assignmentId: string }>();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const [assignment, setAssignment] = useState<Omit<Assignment, '_id'>>({
+  const [assignment, setAssignment] = useState<Assignment>({
     title: "",
     description: "",
-    points: 100,
-    due: "",
+    points: 0,
+    dueDate: "",
     available: "",
-    availableUntil: "",
-    course: cid || ""
   });
 
-
-const fetchAssignment = async () => {
-  if (!aid || aid === "new") {
-    return;
-  }
-
-  try {
-    const response = await client.findAssignmentById(aid);
-    setAssignment({
-      title: response.title || "",
-      description: response.description || "",
-      points: response.points || 100,
-      due: response.dueDate || "",
-      available: response.availableFrom || "",
-      availableUntil: response.availableUntil || "",
-      course: response.course || cid || "",
-    });
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      alert("Assignment not found!");
-    } else {
-      alert("An error occurred while fetching the assignment.");
-    }
-    navigate(`/Kanbas/Courses/${cid}/Assignments`);
-  }
-};
-
   useEffect(() => {
-  fetchAssignment();
-}, [aid, fetchAssignment]);
-
-  if (!cid) {
-    return <div>Invalid course ID</div>;
-  }
-
-const handleSubmit = async () => {
-  try {
-    if (aid === "new") {
-      // Creating a new assignment
-      const response = await client.createAssignment(cid!, assignment);
-      dispatch(addAssignment(response));
-    } else if (aid) {
-      // Ensure aid is a string for updating an existing assignment
-      const response = await client.updateAssignment(aid, assignment as Assignment);
-      dispatch(updateAssignment(response));
-    } else {
-      throw new Error("Assignment ID is undefined.");
+    if (assignmentId && assignmentId !== "new") {
+      const fetchAssignment = async () => {
+        try {
+          const data = await client.findAssignmentById(assignmentId!);
+          setAssignment(data);
+        } catch (error) {
+          console.error("Error fetching assignment:", error);
+        }
+      };
+      fetchAssignment();
     }
+  }, [assignmentId]);
 
-    navigate(`/Kanbas/Courses/${cid}/Assignments`);
-  } catch (error: any) {
-    alert("Failed to save assignment. Please try again.");
-  }
-};
+  const saveAssignment = async () => {
+    try {
+      if (assignmentId === "new") {
+        await client.createAssignment(courseId!, assignment);
+      } else {
+        await client.updateAssignment(assignmentId!, assignment);
+      }
+      navigate(`/courses/${courseId}/assignments`);
+    } catch (error) {
+      console.error("Error saving assignment:", error);
+    }
+  };
 
-  // Make sure courseId is valid before proceeding
-  if (!cid) {
-    return <div>Invalid course ID</div>;
-  }
   return (
-    <div className="container mt-3">
-      <h2>{aid ? "Edit Assignment" : "Add Assignment"}</h2>
-      <div className="mb-3">
-        <label className="form-label">Assignment Name</label>
-        <input
-          type="text"
-          className="form-control"
-          value={assignment.title}
-          onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Description</label>
-        <textarea
-          className="form-control"
-          value={assignment.description}
-          onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Points</label>
-        <input
-          type="number"
-          className="form-control"
-          value={assignment.points}
-          onChange={(e) => setAssignment({ ...assignment, points: parseInt(e.target.value) })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Due Date</label>
-        <input
-          type="date"
-          className="form-control"
-          value={assignment.due}
-          onChange={(e) => setAssignment({ ...assignment, due: e.target.value })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Available From</label>
-        <input
-          type="date"
-          className="form-control"
-          value={assignment.available}
-          onChange={(e) => setAssignment({ ...assignment, available: e.target.value })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">Available Until</label>
-        <input
-          type="date"
-          className="form-control"
-          value={assignment.availableUntil}
-          onChange={(e) => setAssignment({ ...assignment, availableUntil: e.target.value })}
-        />
-      </div>
-
-      <div className="mb-3">
-        <button className="btn btn-primary me-2" onClick={handleSubmit}>
-          {aid ? "Update" : "Add"} Assignment
+    <div className="container mt-4">
+      <h2>{assignmentId === "new" ? "New Assignment" : "Edit Assignment"}</h2>
+      <form>
+        <div className="mb-3">
+          <label htmlFor="title" className="form-label">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            className="form-control"
+            value={assignment.title}
+            onChange={(e) => setAssignment({ ...assignment, title: e.target.value })}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="description" className="form-label">
+            Description
+          </label>
+          <textarea
+            id="description"
+            className="form-control"
+            rows={4}
+            value={assignment.description}
+            onChange={(e) => setAssignment({ ...assignment, description: e.target.value })}
+          ></textarea>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="points" className="form-label">
+            Points
+          </label>
+          <input
+            type="number"
+            id="points"
+            className="form-control"
+            value={assignment.points}
+            onChange={(e) => setAssignment({ ...assignment, points: parseInt(e.target.value) })}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="dueDate" className="form-label">
+            Due Date
+          </label>
+          <input
+            type="date"
+            id="dueDate"
+            className="form-control"
+            value={assignment.dueDate}
+            onChange={(e) => setAssignment({ ...assignment, dueDate: e.target.value })}
+          />
+        </div>
+        <button type="button" className="btn btn-primary me-2" onClick={saveAssignment}>
+          Save
         </button>
         <button
+          type="button"
           className="btn btn-secondary"
-          onClick={() => navigate(`/Kanbas/Courses/${cid}/Assignments`)}
+          onClick={() => navigate(`/courses/${courseId}/assignments`)}
         >
           Cancel
         </button>
-      </div>
+      </form>
     </div>
   );
-}
+};
+
+export default AssignmentEditor;
