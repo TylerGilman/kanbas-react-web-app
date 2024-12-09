@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import PeopleTable from "./Table";
 
+const axiosWithCredentials = axios.create({ withCredentials: true });
 const People: React.FC = () => {
   const { cid } = useParams<{ cid: string }>();
   const [users, setUsers] = useState([]);
@@ -10,7 +11,7 @@ const People: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`/api/courses/${cid}/users`);
+        const response = await axiosWithCredentials.get(`/api/courses/${cid}/users/`);
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users for course:", error);

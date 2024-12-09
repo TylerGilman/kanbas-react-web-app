@@ -2,7 +2,7 @@ import { AiOutlineDashboard } from "react-icons/ai";
 import { IoCalendarOutline } from "react-icons/io5";
 import { LiaBookSolid, LiaCogSolid } from "react-icons/lia";
 import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 interface NavLink {
   label: string;
@@ -13,7 +13,8 @@ interface NavLink {
 
 export default function KanbasNavigation() {
   const { pathname } = useLocation();
-  
+  const { cid } = useParams();
+  console.log(pathname); 
   const links: NavLink[] = [
     { 
       label: "Dashboard", 

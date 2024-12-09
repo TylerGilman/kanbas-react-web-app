@@ -16,6 +16,7 @@ import { setEnrollments } from "./Courses/Enrollments/reducer";
 interface Course {
   _id: string;
   name: string;
+  number: string;
   description: string;
   enrolled: boolean;
 }
@@ -24,9 +25,7 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
   const { cid } = useParams();
   return (
     <ProtectedRoute>
-      <StudentProtectedRoute courseId={cid || ""}>
         <Courses courses={courses} />
-      </StudentProtectedRoute>
     </ProtectedRoute>
   );
 }
@@ -160,8 +159,8 @@ useEffect(() => {
           <Routes>
             <Route path="/" element={<Navigate to="Account" />} />
             <Route path="/Account/*" element={<Account />} />
-            <Route 
-              path="/Dashboard" 
+            <Route
+              path="/Dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard
@@ -178,19 +177,23 @@ useEffect(() => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/Courses/:cid/*" element={
-              <Courses courses={courses} />
-            } />
-            <Route path="/Calendar" element={
-              <ProtectedRoute>
-                <h1>Calendar</h1>
-              </ProtectedRoute>
-            } />
-            <Route path="/Inbox" element={
-              <ProtectedRoute>
-                <h1>Inbox</h1>
-              </ProtectedRoute>
-            } />
+            <Route path="/Courses/:cid/*" element={<ProtectedCourseRoute courses={courses} />} />
+            <Route
+              path="/Calendar"
+              element={
+                <ProtectedRoute>
+                  <h1>Calendar</h1>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Inbox"
+              element={
+                <ProtectedRoute>
+                  <h1>Inbox</h1>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </div>

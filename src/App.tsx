@@ -32,15 +32,6 @@ const App = () => {
           <Route path="/Kanbas/*" element={<Kanbas />} />
           {/* Protected Assignment Editor */}
           <Route
-            path="/Kanbas/Courses/:courseId/Assignments/:assignmentId"
-            element={
-              <ProtectedRoute role="faculty">
-                <AssignmentEditor />
-              </ProtectedRoute>
-            }
-          />
-          {/* Not Authorized Route */}
-          <Route
             path="/not-authorized"
             element={
               <div className="text-center">

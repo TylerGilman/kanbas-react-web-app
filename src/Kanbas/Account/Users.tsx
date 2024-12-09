@@ -7,18 +7,14 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 const Users: React.FC = () => {
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axiosWithCredentials.get("api/users/");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching all users:", error);
-      }
-    };
-
-    fetchUsers();
-  }, []);
+const fetchUsers = async () => {
+  try {
+    const response = await axiosWithCredentials.get("api/users/"); // Ensure this matches the backend route
+    setUsers(response.data);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+  }
+};
 
   return (
     <div>
