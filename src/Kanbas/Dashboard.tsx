@@ -22,30 +22,31 @@ export interface Course {
 
 interface DashboardProps {
   courses: Course[];
-  enrolled_courses: Course[];
   course: Course;
   setCourse: (course: Course) => void;
-  fetchCourses: () => Promise<void>;
   addNewCourse: () => Promise<void>;
   deleteCourse: (courseId: string) => Promise<void>;
-  updateCourse: () => Promise<void>;
+  updateCourse: (courseId: string) => Promise<void>;
+  enrolling: boolean;
+  setEnrolling: (enrolling: boolean) => void;
+  updateEnrollment: (courseId: string, enrolled: boolean) => void;
 }
 
 export default function Dashboard({ 
   courses,
-  enrolled_courses,
   course, 
   setCourse, 
-  fetchCourses,
   addNewCourse, 
   deleteCourse, 
-  updateCourse 
+  updateCourse,
+  enrolling,
+  setEnrolling,
+  updateEnrollment
 }: DashboardProps) {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { showAllCourses } = useSelector((state: any) => state.enrollmentReducer);
 
-  const displayedCourses = showAllCourses ? courses : enrolled_courses;
 
 const handleEnrollmentToggle = async (courseId: string) => {
   try {
@@ -63,40 +64,13 @@ const handleEnrollmentToggle = async (courseId: string) => {
   }
 };
 
-  const StudentEnrollmentButton = () => {
-    if (currentUser?.role !== "STUDENT") return null;
-    return (
-      <button 
-        className="btn btn-primary float-end mb-2"
-        onClick={() => dispatch(toggleShowAllCourses())}
-      >
-        {showAllCourses ? "My Courses" : "All Courses"}
-      </button>
-    );
-  };
-
-  const EnrollmentActionButton = ({ courseId }: { courseId: string }) => {
-    if (currentUser?.role !== "STUDENT") return null;
-    
-    const enrolled = enrolled_courses.some(course => course._id === courseId);
-    return (
-      <button
-        className={`btn ${enrolled ? 'btn-danger' : 'btn-success'} float-end ms-2`}
-        onClick={(e) => {
-          e.preventDefault();
-          handleEnrollmentToggle(courseId);
-        }}
-      >
-        {enrolled ? 'Unenroll' : 'Enroll'}
-      </button>
-    );
-  };
-
   return (
     <div id="wd-dashboard" >
-      <h1 id="wd-dashboard-title">Dashboard</h1>
-      <hr />
-      <StudentEnrollmentButton />
+      <h1 id="wd-dashboard-title">Dashboard
+      <button onClick={() => setEnrolling(!enrolling)} className="float-end btn btn-primary" >
+        {enrolling ? "My Courses" : "All Courses"}
+      </button>
+      </h1>
 
       <FacultyProtectedContent>
         <h5>New Course
@@ -145,7 +119,16 @@ const handleEnrollmentToggle = async (courseId: string) => {
                   <img src="/images/reactjs.jpg" width="100%" height={160} alt="Course" />
                   <div className="card-body">
                     <h5 className="wd-dashboard-course-title card-title">
-                      {course.name}
+                      {enrolling && (
+                        <button onClick={(event) => {
+                          event.preventDefault();
+                          updateEnrollment(course._id, !course.enrolled);
+                        }
+                      }
+                          className={`btn ${ course.enrolled ? "btn-danger" : "btn-success" } float-end`} >
+                          {course.enrolled ? "Unenroll" : "Enroll"}
+                        </button>
+                      )}
                     </h5>
                     <p
                       className="wd-dashboard-course-title card-text overflow-y-hidden"
