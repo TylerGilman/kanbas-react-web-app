@@ -4,6 +4,11 @@ const axiosWithCredentials = axios.create({ withCredentials: true });
 const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
 const COURSES_API = `${REMOTE_SERVER}/api/courses`;
 
+export const findUsersForCourse = async (courseId: string) => {
+    const { data } = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/users`);
+    return data;
+};
+
 // Course operations
 export const createCourse = async (course: any) => {
   const { data } = await axiosWithCredentials.post(COURSES_API, course);
@@ -28,11 +33,6 @@ export const fetchAllCourses = async () => {
 // Module operations
 export const findModulesForCourse = async (courseId: string) => {
  const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/modules`);
- return response.data;
-};
-
-export const findUsersForCourse = async (courseId: string) => {
- const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/users`);
  return response.data;
 };
 

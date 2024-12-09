@@ -6,12 +6,12 @@ import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import PeopleTable from "./People/Table";
 import { FaAlignJustify } from "react-icons/fa6";
-import People from "./People/People";
+import People from "./People/index";
 
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
-  const course = courses.find((course: any) => course._id === cid);
+  const course = courses.find((course: any) => course.number === cid);
   const { pathname } = useLocation();
 
   return (

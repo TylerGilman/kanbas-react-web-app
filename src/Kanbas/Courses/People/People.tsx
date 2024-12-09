@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import PeopleTable from "./Table";
+import * as client from "../client";
 
-const axiosWithCredentials = axios.create({ withCredentials: true });
-const People: React.FC = () => {
-  const { cid } = useParams<{ cid: string }>();
-  const [users, setUsers] = useState([]);
+const People = () => {
+    const { cid } = useParams<{ cid: string }>();
+    const [users, setUsers] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axiosWithCredentials.get(`/api/courses/${cid}/users/`);
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users for course:", error);
-      }
-    };
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                if (cid) {
+                    const fetchedUsers = await client.findUsersForCourse(cid);
+                    setUsers(fetchedUsers);
+                }
+            } catch (error) {
+                console.error("Error fetching users for course:", error);
+            }
+        };
+        fetchUsers();
+    }, [cid]);
 
-    if (cid) fetchUsers();
-  }, [cid]);
-
-  return (
-    <div>
-      <h2>Enrolled Users</h2>
-      <PeopleTable users={users} />
-    </div>
-  );
+    return (
+        <div>
+            <h2>People in Course</h2>
+            <PeopleTable users={users} />
+        </div>
+    );
 };
 
 export default People;

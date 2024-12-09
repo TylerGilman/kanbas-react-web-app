@@ -8,9 +8,8 @@ import Courses from "./Courses";
 import StudentProtectedRoute from "./Account/StudentProtectedRoute";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
-import * as userClient from "./Account/client";
 import * as courseClient from "./Courses/client";
-import { setEnrollments } from "./Courses/Enrollments/reducer";
+import * as userClient from "./Account/client";
 
 // Add Course type
 interface Course {
@@ -30,6 +29,7 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
   );
 }
 
+
 export default function Kanbas() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -37,37 +37,50 @@ export default function Kanbas() {
   const [course, setCourse] = useState<Course>({
     _id: "",
     name: "",
+    number: "",
     description: "",
     enrolled: false
   });
 
- const findCoursesForUser = async () => {
-   try {
-     const courses = await userClient.findCoursesForUser(currentUser._id);
-     setCourses(courses);
-   } catch (error) {
-     console.error(error);
-   }
- };
-  
- const fetchCourses = async () => {
-   try {
-     const allCourses = await courseClient.fetchAllCourses();
-     const enrolledCourses = await userClient.findCoursesForUser(
-       currentUser._id
-     );
-     const courses = allCourses.map((course: any) => {
-       if (enrolledCourses.find((c: any) => c._id === course._id)) {
-         return { ...course, enrolled: true };
-       } else {
-         return course;
-       }
-     });
-     setCourses(courses);
-   } catch (error) {
-     console.error(error);
-   }
- };
+const findCoursesForUser = useCallback(async () => {
+  if (!currentUser) return;
+  try {
+    const courses = await userClient.findCoursesForUser(currentUser._id);
+    // Transform each course to ensure it has enrolled property
+    const transformedCourses = courses.map((course: Course) => ({
+      ...course,
+      enrolled: true  // These are enrolled courses
+    }));
+    setCourses(transformedCourses);
+  } catch (error) {
+    console.error(error);
+  }
+}, [currentUser?._id]);
+
+const fetchCourses = useCallback(async () => {
+  if (!currentUser) return;
+  try {
+    const allCourses = await courseClient.fetchAllCourses();
+    const enrolledCourses = await userClient.findCoursesForUser(currentUser._id);
+    const courses = allCourses.map((course: Course) => ({
+      ...course,
+      enrolled: !!enrolledCourses.find((c: Course) => c.number === course.number)  // Compare number with number
+    }));
+    setCourses(courses);
+  } catch (error) {
+    console.error(error);
+  }
+}, [currentUser?._id]);
+
+useEffect(() => {
+  if (currentUser) {
+    if (enrolling) {
+      fetchCourses();
+    } else {
+      findCoursesForUser();
+    }
+  }
+}, [currentUser, enrolling, fetchCourses, findCoursesForUser]);
 
 
 const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -89,7 +102,7 @@ const deleteCourse = async (courseId: string) => {
   if (!courseId) return;
   try {
     await courseClient.deleteCourse(courseId);
-    setCourses(courses.filter((c) => c._id !== courseId));
+    setCourses(courses.filter((c) => c.number !== courseId));
   } catch (error) {
     console.error(error);
   }
@@ -104,7 +117,13 @@ const addNewCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
       // Remove spread operator and _id to avoid undefined id
     });
     setCourses([...courses, {...newCourse, enrolled: false}]);
-    setCourse({ _id: "", name: "", description: "", enrolled: false }); // Reset form
+setCourse({ 
+  _id: "", 
+  name: "", 
+  number: "",
+  description: "", 
+  enrolled: false 
+});
   } catch (error) {
     console.error(error);
   }
@@ -118,38 +137,24 @@ const updateEnrollment = async (courseId: string, enrolled: boolean) => {
       await userClient.unenrollFromCourse(currentUser._id, courseId);
     }
     
-    // If we're showing all courses, update the enrolled status
-    if (enrolling) {
-      setCourses(
-        courses.map((course) => {
-          if (course._id === courseId) {
-            return { ...course, enrolled };
-          }
-          return course;
-        })
-      );
-    } else {
-      // If we're showing only enrolled courses, remove unenrolled courses
-      if (!enrolled) {
-        setCourses(courses.filter(course => course._id !== courseId));
-      }
+    // Always update the enrolled status of the course
+    setCourses(
+      courses.map((course) => {
+        if (course.number === courseId) {
+          return { ...course, enrolled };
+        }
+        return course;
+      })
+    );
+
+    // If we're not showing all courses, refetch the enrolled courses
+    if (!enrolling) {
+      await findCoursesForUser();
     }
   } catch (error) {
     console.error(error);
   }
 };
-
-useEffect(() => {
-  if (currentUser) {
-    if (enrolling) {
-      // Show all courses when enrolling is true
-      fetchCourses();
-    } else {
-      // Show only enrolled courses when enrolling is false
-      findCoursesForUser();
-    }
-  }
-}, [currentUser, enrolling]);
 
   return (
     <Session>
