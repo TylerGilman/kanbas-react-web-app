@@ -45,11 +45,13 @@ export default function Kanbas() {
 const findCoursesForUser = useCallback(async () => {
   if (!currentUser) return;
   try {
-    const courses = await userClient.findCoursesForUser(currentUser._id);
-    // Transform each course to ensure it has enrolled property
-    const transformedCourses = courses.map((course: Course) => ({
+    const enrolledCourses = await userClient.findCoursesForUser(currentUser._id);
+    // Transform courses to include complete course data
+    const transformedCourses = enrolledCourses.map((course: Course) => ({
       ...course,
-      enrolled: true  // These are enrolled courses
+      name: course.name,    // Ensure name is preserved
+      description: course.description,  // Ensure description is preserved
+      enrolled: true 
     }));
     setCourses(transformedCourses);
   } catch (error) {
@@ -63,8 +65,8 @@ const fetchCourses = useCallback(async () => {
     const allCourses = await courseClient.fetchAllCourses();
     const enrolledCourses = await userClient.findCoursesForUser(currentUser._id);
     const courses = allCourses.map((course: Course) => ({
-      ...course,
-      enrolled: !!enrolledCourses.find((c: Course) => c.number === course.number)  // Compare number with number
+      ...course, // Preserve all course data
+      enrolled: !!enrolledCourses.find((c: Course) => c.number === course.number)
     }));
     setCourses(courses);
   } catch (error) {
