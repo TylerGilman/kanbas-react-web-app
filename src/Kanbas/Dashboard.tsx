@@ -1,24 +1,18 @@
 import { Link } from "react-router-dom";
 import FacultyProtectedContent from "./Account/FacultyProtectedContent";
 import { useSelector } from "react-redux";
-
-export interface Course {
-  _id: string;
-  name: string;
-  description: string;
-  enrolled?: boolean;
-}
+import { Course } from './types';
 
 interface DashboardProps {
   courses: Course[];
   course: Course;
-  setCourse: (course: Course) => void;
-  addNewCourse: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  setCourse: React.Dispatch<React.SetStateAction<Course>>;
+  addNewCourse: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   deleteCourse: (courseId: string) => Promise<void>;
-  updateCourse: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  updateCourse: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   enrolling: boolean;
   setEnrolling: (enrolling: boolean) => void;
-  updateEnrollment: (courseId: string, enrolled: boolean) => void;
+  updateEnrollment: (courseId: string, enrolled: boolean) => Promise<void>;
 }
 
 export default function Dashboard({ 
@@ -37,8 +31,11 @@ export default function Dashboard({
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard
-        <button onClick={() => setEnrolling(!enrolling)} className="float-end btn btn-primary">
-          {enrolling ? "My Courses" : "All Courses"}
+        <button 
+          onClick={() => setEnrolling(!enrolling)} 
+          className="float-end btn btn-primary"
+        >
+          {enrolling ? "Show My Courses" : "Show All Courses"}
         </button>
       </h1>
 

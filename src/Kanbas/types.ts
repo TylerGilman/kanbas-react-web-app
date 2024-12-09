@@ -1,5 +1,6 @@
-export type Course = {
+export interface Course {
   _id: string;
   name: string;
   description: string;
-};
+  enrolled: boolean;
+}

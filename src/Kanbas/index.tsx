@@ -17,6 +17,7 @@ interface Course {
   _id: string;
   name: string;
   description: string;
+  enrolled: boolean;
 }
 
 function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
@@ -34,6 +35,12 @@ export default function Kanbas() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolling, setEnrolling] = useState<boolean>(false);
+  const [course, setCourse] = useState<Course>({
+    _id: "",
+    name: "",
+    description: "",
+    enrolled: false
+  });
 
  const findCoursesForUser = async () => {
    try {
@@ -94,7 +101,7 @@ export default function Kanbas() {
         _id: undefined // Remove _id for new course creation
       });
       setCourses([...courses, newCourse]);
-      setCourse({ _id: "", name: "", description: "" }); // Reset form
+      setCourse({ _id: "", name: "", description: "", enrolled: false }); // Reset form
     } catch (error) {
       console.error(error);
     }
