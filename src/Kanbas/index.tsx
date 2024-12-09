@@ -43,7 +43,7 @@ export default function Kanbas() {
      console.error(error);
    }
  };
-
+  
  const fetchCourses = async () => {
    try {
      const allCourses = await courseClient.fetchAllCourses();
@@ -63,49 +63,83 @@ export default function Kanbas() {
    }
  };
 
- const updateEnrollment = async (courseId: string, enrolled: boolean) => {
-   if (enrolled) {
-     await userClient.enrollIntoCourse(currentUser._id, courseId);
-   } else {
-     await userClient.unenrollFromCourse(currentUser._id, courseId);
-   }
-   setCourses(
-     courses.map((course) => {
-       if (course._id === courseId) {
-         return { ...course, enrolled: enrolled };
-       } else {
-         return course;
-       }
-     })
-   );
- };
 
-const updateCourse = async (courseId: string) => {
+  const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      await courseClient.updateCourse({
+        ...course,
+        _id: course._id
+      });
+      await fetchCourses(); 
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const deleteCourse = async (courseId: string) => {
+    try {
+      const status = await courseClient.deleteCourse(courseId);
+      setCourses(courses.filter((c) => c._id !== courseId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const addNewCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      const newCourse = await courseClient.createCourse({
+        ...course,
+        _id: undefined // Remove _id for new course creation
+      });
+      setCourses([...courses, newCourse]);
+      setCourse({ _id: "", name: "", description: "" }); // Reset form
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+const updateEnrollment = async (courseId: string, enrolled: boolean) => {
   try {
-    await courseClient.updateCourse(course);
-    await fetchCourses();  // Fetch updated courses immediately
+    if (enrolled) {
+      await userClient.enrollIntoCourse(currentUser._id, courseId);
+    } else {
+      await userClient.unenrollFromCourse(currentUser._id, courseId);
+    }
+    
+    // If we're showing all courses, update the enrolled status
+    if (enrolling) {
+      setCourses(
+        courses.map((course) => {
+          if (course._id === courseId) {
+            return { ...course, enrolled };
+          }
+          return course;
+        })
+      );
+    } else {
+      // If we're showing only enrolled courses, remove unenrolled courses
+      if (!enrolled) {
+        setCourses(courses.filter(course => course._id !== courseId));
+      }
+    }
   } catch (error) {
     console.error(error);
   }
 };
 
- const deleteCourse = async (courseId: string) => {
-   const status = await courseClient.deleteCourse(courseId);
-   setCourses(courses.filter((course) => course._id !== courseId));
- };
-
- const addNewCourse = async () => {
-   const newCourse = await courseClient.createCourse(course);
-   setCourses([...courses, newCourse]);
- };
-
-  useEffect(() => {
-   if (enrolling) {
-     fetchCourses();
-   } else {
-     findCoursesForUser();
-   }
- }, [currentUser, enrolling]);
+useEffect(() => {
+  if (currentUser) {
+    if (enrolling) {
+      // Show all courses when enrolling is true
+      fetchCourses();
+    } else {
+      // Show only enrolled courses when enrolling is false
+      findCoursesForUser();
+    }
+  }
+}, [currentUser, enrolling]);
 
   return (
     <Session>
@@ -122,7 +156,7 @@ const updateCourse = async (courseId: string) => {
                   <Dashboard
                     courses={courses}
                     course={course}
-                    setCourse={setCourses}
+                    setCourse={setCourse}
                     addNewCourse={addNewCourse}
                     deleteCourse={deleteCourse}
                     updateCourse={updateCourse}
