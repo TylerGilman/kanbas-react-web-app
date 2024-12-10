@@ -10,6 +10,7 @@ import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
+import * as enrollClient from "./Courses/Enrollments/client";;
 
 // Add Course type
 interface Course {
@@ -33,7 +34,6 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
 export default function Kanbas() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [enrolling, setEnrolling] = useState<boolean>(false);
   const [course, setCourse] = useState<Course>({
     _id: "",
     name: "",
@@ -41,11 +41,12 @@ export default function Kanbas() {
     description: "",
     enrolled: false
   });
+  const [enrolling, setEnrolling] = useState<boolean>(false);
 
 const findCoursesForUser = useCallback(async () => {
   if (!currentUser) return;
   try {
-    const enrolledCourses = await userClient.findCoursesForUser(currentUser._id);
+    const enrolledCourses = await enrollClient.fetchEnrollments(currentUser._id);
     // Transform courses to include complete course data
     const transformedCourses = enrolledCourses.map((course: Course) => ({
       ...course,
@@ -59,31 +60,41 @@ const findCoursesForUser = useCallback(async () => {
   }
 }, [currentUser?._id]);
 
-const fetchCourses = useCallback(async () => {
-  if (!currentUser) return;
-  try {
-    const allCourses = await courseClient.fetchAllCourses();
-    const enrolledCourses = await userClient.findCoursesForUser(currentUser._id);
-    const courses = allCourses.map((course: Course) => ({
-      ...course, // Preserve all course data
-      enrolled: !!enrolledCourses.find((c: Course) => c.number === course.number)
-    }));
-    setCourses(courses);
-  } catch (error) {
-    console.error(error);
-  }
-}, [currentUser?._id]);
-
-useEffect(() => {
-  if (currentUser) {
-    if (enrolling) {
-      fetchCourses();
-    } else {
-      findCoursesForUser();
+  // Fetch all courses
+  const fetchAllCourses = useCallback(async () => {
+    try {
+      const data = await courseClient.fetchAllCourses();
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch all courses:", error);
+      return [];
     }
-  }
-}, [currentUser, enrolling, fetchCourses, findCoursesForUser]);
+  }, []);
 
+  // Fetch enrolled courses
+  const fetchEnrolledCourses = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/user/${userId}/enrollments`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        // Log HTTP status and response text for debugging
+        const errorText = await response.text();
+        console.error(`Error response from API: ${response.status} - ${errorText}`);
+        throw new Error(`API returned status ${response.status}`);
+      }
+
+      // Parse the JSON response
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to fetch enrolled courses:", error);
+      throw error;
+    }
+  };
 
 const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
@@ -93,7 +104,13 @@ const updateCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
   }
   try {
     await courseClient.updateCourse(course);
-    await fetchCourses();
+    if (enrolling) {
+      const allCourses = await fetchAllCourses();
+      setCourses(allCourses);
+    } else {
+      const enrolledCourses = await fetchEnrolledCourses(currentUser._id);
+      setCourses(enrolledCourses);
+    }
   } catch (error) {
     console.error(error);
     alert("Failed to update course");
@@ -180,6 +197,8 @@ const updateEnrollment = async (courseId: string, enrolled: boolean) => {
                     enrolling={enrolling}
                     setEnrolling={setEnrolling}
                     updateEnrollment={updateEnrollment}
+                    fetchAllCourses={fetchAllCourses}
+                    fetchEnrolledCourses={fetchEnrolledCourses}
                   />
                 </ProtectedRoute>
               }
