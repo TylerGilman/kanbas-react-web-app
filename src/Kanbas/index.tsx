@@ -16,9 +16,7 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
   const { cid } = useParams();
   return (
     <ProtectedRoute>
-      <StudentProtectedRoute courseId={cid || ""}>
         <Courses courses={courses} />
-      </StudentProtectedRoute>
     </ProtectedRoute>
   );
 }

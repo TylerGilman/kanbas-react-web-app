@@ -80,7 +80,7 @@ export default function Dashboard({
               <div className="card-body">
                 <h5 className="card-title">
                   <Link 
-                    to={`/Kanbas/Courses/${course._id}/Home`} 
+                    to={`/Kanbas/Courses/${course.number}/Home`} 
                     className="text-decoration-none"
                   >
                     {course.name}
@@ -89,7 +89,7 @@ export default function Dashboard({
                 <p className="card-text">{course.description}</p>
                 <div className="d-flex justify-content-between align-items-center">
                   <Link 
-                    to={`/Kanbas/Courses/${course._id}/Home`} 
+                    to={`/Kanbas/Courses/${course.number}/Home`} 
                     className="btn btn-primary"
                   >
                     Go to Course
