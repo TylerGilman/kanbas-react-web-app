@@ -1,86 +1,63 @@
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Routes, Route, Navigate } from "react-router-dom";
+import Account from "./Account";
 import Dashboard from "./Dashboard";
 import KanbasNavigation from "./Navigation";
+import Courses from "./Courses";
+import { Course } from "./types";
+import StudentProtectedRoute from "./Account/StudentProtectedRoute";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
-import Account from "./Account";
-import Signin from "./Account/Signin";
-import Signup from "./Account/Signup";
-import { Course } from "./types";
 import * as courseClient from "./Courses/client";
 import * as enrollClient from "./Courses/Enrollments/client";
 
+function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
+  const { cid } = useParams();
+  return (
+    <ProtectedRoute>
+      <StudentProtectedRoute courseId={cid || ""}>
+        <Courses courses={courses} />
+      </StudentProtectedRoute>
+    </ProtectedRoute>
+  );
+}
+
 export default function Kanbas() {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
-  const [displayedCourses, setDisplayedCourses] = useState<Course[]>([]);
-  const [showAllCourses, setShowAllCourses] = useState<boolean>(false);
+  const [course, setCourse] = useState<Course>({
+    _id: new Date().getTime().toString(),
+    name: "",
+    number: "",
+    description: "",
+    enrolled: false
+  });
+  const [showAllCourses, setShowAllCourses] = useState(false);
 
-  // Fetch all courses once on mount
-  useEffect(() => {
-    const fetchAllCourses = async () => {
-      try {
-        const courses = await courseClient.fetchAllCourses();
-        console.log("All Courses Fetched:", courses);
-        setAllCourses(courses);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-        if (currentUser?._id) {
-          const enrolledCourses = await enrollClient.fetchEnrollments(currentUser._id);
-
-          setDisplayedCourses(enrolledCourses);
-        }
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
-
-    fetchAllCourses();
-  }, [currentUser]);
-
-  // Toggle between showing all courses and only enrolled courses
-  const toggleCoursesView = async () => {
-    if (showAllCourses) {
-      console.log("Switching to Enrolled Courses");
-      const enrolledCourses = await enrollClient.fetchEnrollments(currentUser._id);
-      setDisplayedCourses(enrolledCourses);
-    } else {
-      console.log("Switching to All Courses");
-      setDisplayedCourses(allCourses);
-    }
-    setShowAllCourses(!showAllCourses);
-  };
-
-  // Update enrollment status
-  const updateEnrollment = async (courseId: string, enrolled: boolean) => {
+  const fetchCourses = async () => {
     try {
-      if (!currentUser?._id) {
-        console.error("User is not logged in.");
-        return;
+      if (currentUser) {
+        // Fetch all courses
+        const allCoursesData = await courseClient.fetchAllCourses();
+        setAllCourses(allCoursesData);
+
+        // Filter for enrolled courses based on the enrolled flag
+        const enrolledCoursesData = await enrollClient.fetchEnrollments(currentUser._id);
+        setCourses(enrolledCoursesData);
       }
-
-      if (enrolled) {
-        console.log(`Unenrolling from course ${courseId}`);
-        await enrollClient.unenrollFromCourse(currentUser._id, courseId);
-      } else {
-        console.log(`Enrolling in course ${courseId}`);
-        await enrollClient.enrollInCourse(currentUser._id, courseId);
-      }
-
-      // Update courses locally
-      const updatedCourses = allCourses.map((course) =>
-        course._id === courseId ? { ...course, enrolled: !enrolled } : course
-      );
-      setAllCourses(updatedCourses);
-
-      // Update displayed courses based on current view
-      const enrolledCourses = updatedCourses.filter((course: Course) => course.enrolled);
-      setDisplayedCourses(showAllCourses ? updatedCourses : enrolledCourses);
     } catch (error) {
-      console.error("Error updating enrollment:", error);
+      console.error("Error fetching courses:", error);
     }
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchCourses();
+    }
+  }, [currentUser]);
 
   return (
     <Session>
@@ -88,23 +65,74 @@ export default function Kanbas() {
         <KanbasNavigation />
         <div className="wd-main-content-offset">
           <Routes>
-            <Route path="/" element={<Navigate to="/Account/Login" />} />
-            <Route path="/Account/Login" element={<Signin />} />
-            <Route path="/Account/Register" element={<Signup />} />
-            <Route
-              path="/Dashboard"
+            <Route path="/" element={<Navigate to="Account" />} />
+            <Route path="/Account/*" element={<Account />} />
+            <Route 
+              path="/Dashboard" 
               element={
-                <ProtectedRoute>
-                  <Dashboard
-                    courses={displayedCourses}
-                    showAllCourses={showAllCourses}
-                    toggleCourses={toggleCoursesView}
-                    updateEnrollment={updateEnrollment}
-                  />
-                </ProtectedRoute>
+              <ProtectedRoute>
+                <Dashboard
+                  courses={showAllCourses ? allCourses : courses}
+                  enrolled_courses={courses}
+                  course={course}
+                  setCourse={setCourse}
+                  fetchCourses={fetchCourses}
+                  addNewCourse={() => 
+                    courseClient.createCourse(course)
+                      .then(() => fetchCourses())
+                      .catch(error => console.error(error))
+                  }
+                  deleteCourse={(courseId: string) => 
+                    courseClient.deleteCourse(courseId)
+                      .then(() => fetchCourses())
+                      .catch(error => console.error(error))
+                  }
+                  updateCourse={() => 
+                    courseClient.updateCourse(course)
+                      .then(() => fetchCourses())
+                      .catch(error => console.error(error))
+                  }
+                  showAllCourses={showAllCourses}
+                  toggleCourses={() => setShowAllCourses(!showAllCourses)}
+                  handleEnrollmentToggle={async (courseId: string) => {
+                    try {
+                      const courseToToggle = allCourses.find(c => c._id === courseId);
+                      if (courseToToggle) {
+                        if (courseToToggle.enrolled) {
+                          await enrollClient.unenrollFromCourse(currentUser._id, courseId);
+                        } else {
+                          await enrollClient.enrollInCourse(currentUser._id, courseId);
+                        }
+                        await fetchCourses(); // Refresh the courses after enrollment change
+                      }
+                    } catch (error) {
+                      console.error("Error toggling enrollment:", error);
+                    }
+                  }}
+                />
+              </ProtectedRoute>
               }
             />
-            <Route path="/Account/*" element={<Account />} />
+            <Route 
+              path="/Courses/:cid/*" 
+              element={<ProtectedCourseRoute courses={courses} />} 
+            />
+            <Route 
+              path="/Calendar" 
+              element={
+                <ProtectedRoute>
+                  <h1>Calendar</h1>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/Inbox" 
+              element={
+                <ProtectedRoute>
+                  <h1>Inbox</h1>
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
       </div>
