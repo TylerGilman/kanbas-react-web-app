@@ -26,14 +26,15 @@ export const updateCourse = async (course: any) => {
 };
 
 export const fetchAllCourses = async () => {
-  const response = await axiosWithCredentials.get(COURSES_API);
-  return response.data;
+  const { data } = await axiosWithCredentials.get(COURSES_API);
+  console.log(data);
+  return data;
 };
 
 // Module operations
 export const findModulesForCourse = async (courseId: string) => {
- const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/modules`);
- return response.data;
+ const { data } = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/modules`);
+ return data;
 };
 
 export const createModuleForCourse = async (courseId: string, module: any) => {
