@@ -3,36 +3,57 @@ import { NavLink, useParams } from "react-router-dom";
 export default function CoursesNavigation() {
   const { cid } = useParams(); // Get the course ID dynamically from the route
 
+  const baseLinkStyle: React.CSSProperties = {
+    textDecoration: 'none',
+    color: 'inherit',
+    display: 'inline-block',
+    padding: '0.5rem 0.2rem'
+  };
+  const activeLinkStyle: React.CSSProperties = {
+    ...baseLinkStyle,
+    fontWeight: 'bold',
+    color: 'black',
+    borderRight: '3px solid black'
+  };
+  const containerStyle: React.CSSProperties = {
+    listStyleType: 'none',
+    padding: 0,
+    margin: 0
+  };
+  const listItemStyle: React.CSSProperties = {
+    marginBottom: '0.5rem'
+  };
+
   return (
-    <ul className="list-group">
-      <li>
+    <ul style={containerStyle}>
+      <li style={listItemStyle}>
         <NavLink
           to={`/Kanbas/Courses/${cid}/Home`}
-          className={({ isActive }) => (isActive ? "active-link" : "")}
+          style={({ isActive }) => isActive ? activeLinkStyle : baseLinkStyle}
         >
           Home
         </NavLink>
       </li>
-      <li>
+      <li style={listItemStyle}>
         <NavLink
           to={`/Kanbas/Courses/${cid}/Modules`}
-          className={({ isActive }) => (isActive ? "active-link" : "")}
+          style={({ isActive }) => isActive ? activeLinkStyle : baseLinkStyle}
         >
           Modules
         </NavLink>
       </li>
-      <li>
+      <li style={listItemStyle}>
         <NavLink
           to={`/Kanbas/Courses/${cid}/Assignments`}
-          className={({ isActive }) => (isActive ? "active-link" : "")}
+          style={({ isActive }) => isActive ? activeLinkStyle : baseLinkStyle}
         >
           Assignments
         </NavLink>
       </li>
-      <li>
+      <li style={listItemStyle}>
         <NavLink
           to={`/Kanbas/Courses/${cid}/People`}
-          className={({ isActive }) => (isActive ? "active-link" : "")}
+          style={({ isActive }) => isActive ? activeLinkStyle : baseLinkStyle}
         >
           People
         </NavLink>

@@ -13,12 +13,15 @@ export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
   const course = courses.find((course: any) => course.number === cid);
   const { pathname } = useLocation();
+  const split = pathname.split('/');
+  const cpage = split[split.length - 1];
+  const cname = split[split.length - 2];
 
   return (
     <div id="wd-courses">
       <h2 className="text-black">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course && course.name} &gt; {pathname.split("/")[4]}
+        {cname} &gt; { cpage }
       </h2>
       <hr />
       <div className="d-flex">

@@ -13,21 +13,21 @@ interface Assignment {
 }
 
 const Assignments: React.FC = () => {
-  const { courseId } = useParams<{ courseId: string }>();
+  const { cid } = useParams<{ cid: string }>();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const data = await client.findAssignmentsForCourse(courseId!);
+        const data = await client.findAssignmentsForCourse(cid!);
         setAssignments(data);
       } catch (error) {
         console.error("Error fetching assignments:", error);
       }
     };
     fetchAssignments();
-  }, [courseId]);
+  }, [cid]);
 
   const deleteAssignment = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
@@ -46,7 +46,7 @@ const Assignments: React.FC = () => {
         <h2>Assignments</h2>
         <button
           className="btn btn-danger"
-          onClick={() => navigate(`/courses/${courseId}/assignments/new`)}
+          onClick={() => navigate(`/Kanbas/courses/${cid}/assignments/new`)}
         >
           <FaPlus className="me-2" /> New Assignment
         </button>
@@ -75,7 +75,7 @@ const Assignments: React.FC = () => {
                   <button
                     className="btn btn-sm btn-primary me-2"
                     onClick={() =>
-                      navigate(`/courses/${courseId}/assignments/${assignment._id}`)
+                      navigate(`/Kanbas/courses/${cid}/assignments/${assignment._id}`)
                     }
                   >
                     <BsPencilSquare /> Edit

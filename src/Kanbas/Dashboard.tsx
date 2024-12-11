@@ -95,10 +95,9 @@ export default function Dashboard({
                     Go to Course
                   </Link>
 
-                  {/* Add enrollment buttons for students when showing all courses */}
                   {currentUser?._id && showAllCourses && (
                     <button
-                      onClick={() => handleEnrollmentToggle(course._id)}
+                      onClick={() => handleEnrollmentToggle(course.number)} 
                       className={`btn ${course.enrolled ? 'btn-danger' : 'btn-success'}`}
                     >
                       {course.enrolled ? 'Unenroll' : 'Enroll'}
@@ -113,14 +112,20 @@ export default function Dashboard({
                       >
                         Edit
                       </button>
-                      {course._id && (
-                        <button
-                          onClick={() => deleteCourse(course._id || '')}
-                          className="btn btn-danger"
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <button
+                        onClick={() => {
+                          console.log("[Dashboard] Delete button clicked for course:", course);
+                          deleteCourse(course.number)
+                            .then(() => {
+                              console.log("[Dashboard] Delete successful, refetching courses...");
+                              return fetchCourses(); // Ensure this function updates state
+                            })
+                            .catch(err => console.error("[Dashboard] Error deleting course:", err));
+                        }}
+                        className="btn btn-danger"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </FacultyProtectedContent>
                 </div>

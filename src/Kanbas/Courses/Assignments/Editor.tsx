@@ -11,7 +11,7 @@ interface Assignment {
 }
 
 const AssignmentEditor: React.FC = () => {
-  const { courseId, assignmentId } = useParams<{ courseId: string; assignmentId: string }>();
+  const { cid, aid } = useParams<{ cid: string; aid: string }>();
   const navigate = useNavigate();
 
   const [assignment, setAssignment] = useState<Assignment>({
@@ -23,10 +23,10 @@ const AssignmentEditor: React.FC = () => {
   });
 
   useEffect(() => {
-    if (assignmentId && assignmentId !== "new") {
+    if (aid && aid !== "new") {
       const fetchAssignment = async () => {
         try {
-          const data = await client.findAssignmentById(assignmentId!);
+          const data = await client.findAssignmentById(aid!);
           setAssignment(data);
         } catch (error) {
           console.error("Error fetching assignment:", error);
@@ -34,16 +34,16 @@ const AssignmentEditor: React.FC = () => {
       };
       fetchAssignment();
     }
-  }, [assignmentId]);
+  }, [aid]);
 
   const saveAssignment = async () => {
     try {
-      if (assignmentId === "new") {
-        await client.createAssignment(courseId!, assignment);
+      if (aid === "new") {
+        await client.createAssignment(cid!, assignment);
       } else {
-        await client.updateAssignment(assignmentId!, assignment);
+        await client.updateAssignment(aid!, assignment);
       }
-      navigate(`/courses/${courseId}/assignments`);
+      navigate(`/Kanbas/courses/${cid}/assignments`);
     } catch (error) {
       console.error("Error saving assignment:", error);
     }
@@ -51,7 +51,7 @@ const AssignmentEditor: React.FC = () => {
 
   return (
     <div className="container mt-4">
-      <h2>{assignmentId === "new" ? "New Assignment" : "Edit Assignment"}</h2>
+      <h2>{aid === "new" ? "New Assignment" : "Edit Assignment"}</h2>
       <form>
         <div className="mb-3">
           <label htmlFor="title" className="form-label">
@@ -107,7 +107,7 @@ const AssignmentEditor: React.FC = () => {
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => navigate(`/courses/${courseId}/assignments`)}
+          onClick={() => navigate(`/Kanbas/courses/${cid}/assignments`)}
         >
           Cancel
         </button>

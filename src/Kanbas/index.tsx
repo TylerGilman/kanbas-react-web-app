@@ -35,21 +35,63 @@ export default function Kanbas() {
 
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
-  const fetchCourses = async () => {
-    try {
-      if (currentUser) {
-        // Fetch all courses
-        const allCoursesData = await courseClient.fetchAllCourses();
-        setAllCourses(allCoursesData);
+const fetchCourses = async () => {
+  try {
+    if (currentUser) {
+      const allCoursesData = await courseClient.fetchAllCourses();
+      const enrolledCoursesData = await enrollClient.fetchEnrollments(currentUser._id);
 
-        // Filter for enrolled courses based on the enrolled flag
-        const enrolledCoursesData = await enrollClient.fetchEnrollments(currentUser._id);
-        setCourses(enrolledCoursesData);
-      }
-    } catch (error) {
-      console.error("Error fetching courses:", error);
+      // Extract the numbers of enrolled courses
+      const enrolledCourseNumbers = enrolledCoursesData.map((c: Course) => c.number);
+
+      // Merge enrolled info into all courses
+      const enrichedAllCourses = allCoursesData.map((course: Course) => ({
+        ...course,
+        enrolled: enrolledCourseNumbers.includes(course.number)
+      }));
+
+      // If you want to mark enrolled_courses array as enrolled=true as well
+      const enrichedEnrolledCourses = enrolledCoursesData.map((course: Course) => ({
+        ...course,
+        enrolled: true
+      }));
+
+      setAllCourses(enrichedAllCourses);
+      setCourses(enrichedEnrolledCourses);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+  }
+};
+
+const handleEnrollmentToggle = async (courseNumber: string) => {
+  try {
+    const courseToToggle = allCourses.find(c => c.number === courseNumber);
+    if (!courseToToggle) return;
+
+    // Optimistically update UI
+    if (courseToToggle.enrolled) {
+      // Mark as unenrolled immediately
+      setAllCourses(allCourses.map(c => c.number === courseNumber ? {...c, enrolled: false} : c));
+    } else {
+      // Mark as enrolled immediately
+      setAllCourses(allCourses.map(c => c.number === courseNumber ? {...c, enrolled: true} : c));
+    }
+
+    if (courseToToggle.enrolled) {
+      console.log("[handleEnrollmentToggle] Unenrolling from course:", courseNumber);
+      await enrollClient.unenrollFromCourse(currentUser._id, courseNumber);
+    } else {
+      console.log("[handleEnrollmentToggle] Enrolling in course:", courseNumber);
+      await enrollClient.enrollInCourse(currentUser._id, courseNumber);
+    }
+
+    console.log("[handleEnrollmentToggle] Refreshing courses after enrollment change.");
+    await fetchCourses();
+  } catch (error) {
+    console.error("[handleEnrollmentToggle] Error toggling enrollment:", error);
+  }
+};
 
   useEffect(() => {
     if (currentUser) {
@@ -92,21 +134,7 @@ export default function Kanbas() {
                   }
                   showAllCourses={showAllCourses}
                   toggleCourses={() => setShowAllCourses(!showAllCourses)}
-                  handleEnrollmentToggle={async (courseId: string) => {
-                    try {
-                      const courseToToggle = allCourses.find(c => c._id === courseId);
-                      if (courseToToggle) {
-                        if (courseToToggle.enrolled) {
-                          await enrollClient.unenrollFromCourse(currentUser._id, courseId);
-                        } else {
-                          await enrollClient.enrollInCourse(currentUser._id, courseId);
-                        }
-                        await fetchCourses(); // Refresh the courses after enrollment change
-                      }
-                    } catch (error) {
-                      console.error("Error toggling enrollment:", error);
-                    }
-                  }}
+                  handleEnrollmentToggle={handleEnrollmentToggle}
                 />
               </ProtectedRoute>
               }
