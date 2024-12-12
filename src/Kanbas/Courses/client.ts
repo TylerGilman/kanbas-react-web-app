@@ -9,19 +9,21 @@ export const findUsersForCourse = async (courseId: string) => {
     return data;
 };
 
-// Course operations
+export const updateCourse = async (course: any) => {
+  const response = await axiosWithCredentials.put(
+    `${COURSES_API}/${course.number}`,
+    course
+  );
+  return response.data;
+};
+
 export const createCourse = async (course: any) => {
-  const { data } = await axiosWithCredentials.post(COURSES_API, course);
-  return data;
+  const response = await axiosWithCredentials.post(COURSES_API, course);
+  return response.data;
 };
 
 export const deleteCourse = async (id: string) => {
  const { data } = await axiosWithCredentials.delete(`${COURSES_API}/${id}`);
- return data;
-};
-
-export const updateCourse = async (course: any) => {
- const { data } = await axiosWithCredentials.put(`${COURSES_API}/${course.number}`, course);
  return data;
 };
 
@@ -44,3 +46,5 @@ export const createModuleForCourse = async (courseId: string, module: any) => {
  );
  return response.data;
 };
+
+

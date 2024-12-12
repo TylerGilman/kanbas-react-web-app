@@ -12,6 +12,7 @@ interface DashboardProps {
   fetchCourses: () => Promise<void>;
   addNewCourse: () => Promise<void>;
   deleteCourse: (courseId: string) => Promise<void>;
+  setCourseForEdit: (course: Course) => void;
   updateCourse: () => Promise<void>;
   showAllCourses: boolean;
   toggleCourses: () => void;
@@ -26,6 +27,7 @@ export default function Dashboard({
   fetchCourses,
   addNewCourse, 
   deleteCourse, 
+  setCourseForEdit,
   updateCourse,
   showAllCourses,
   toggleCourses,
@@ -45,24 +47,75 @@ export default function Dashboard({
           </button>
       </h1>
 
-      <FacultyProtectedContent>
-        <div className="mb-4">
-          <h5>New Course
-            <button className="btn btn-primary float-end" onClick={addNewCourse}>Add</button>
-            <button className="btn btn-warning float-end me-2" onClick={updateCourse}>Update</button>
-          </h5>
-          <input
-            value={course.name}
-            className="form-control mb-2"
-            onChange={(e) => setCourse({ ...course, name: e.target.value })}
-          />
-          <textarea
-            value={course.description}
-            className="form-control"
-            onChange={(e) => setCourse({ ...course, description: e.target.value })}
-          />
-        </div>
-      </FacultyProtectedContent>
+<FacultyProtectedContent>
+  <div className="mb-4">
+    <h5>
+      {course._id ? "Edit Course" : "New Course"}
+      <button 
+        className="btn btn-primary float-end" 
+        onClick={() => {
+          if (course._id) {
+            updateCourse();
+          } else {
+            addNewCourse();
+          }
+        }}
+      >
+        {course._id ? "Update" : "Add"}
+      </button>
+      {course._id && (
+        <button
+          className="btn btn-secondary float-end me-2"
+          onClick={() => setCourse({
+            _id: "",
+            name: "",
+            number: "",
+            description: "",
+            enrolled: false
+          })}
+        >
+          Cancel
+        </button>
+      )}
+    </h5>
+
+    <div className="mb-3">
+      <label htmlFor="courseName" className="form-label">Course Name</label>
+      <input
+        id="courseName"
+        value={course.name}
+        className="form-control"
+        onChange={(e) => setCourse({ ...course, name: e.target.value })}
+        placeholder="Enter course name"
+      />
+    </div>
+
+    {!course._id && (
+      <div className="mb-3">
+        <label htmlFor="courseNumber" className="form-label">Course Number</label>
+        <input
+          id="courseNumber"
+          value={course.number}
+          className="form-control"
+          onChange={(e) => setCourse({ ...course, number: e.target.value })}
+          placeholder="Enter course number"
+        />
+      </div>
+    )}
+
+    <div className="mb-3">
+      <label htmlFor="courseDescription" className="form-label">Course Description</label>
+      <textarea
+        id="courseDescription"
+        value={course.description}
+        className="form-control"
+        onChange={(e) => setCourse({ ...course, description: e.target.value })}
+        placeholder="Enter course description"
+        rows={3}
+      />
+    </div>
+  </div>
+</FacultyProtectedContent>
       <h2>
         {showAllCourses ? "All Courses" : "Enrolled Courses"} 
         ({(showAllCourses ? courses : enrolled_courses).length})
@@ -107,7 +160,7 @@ export default function Dashboard({
                   <FacultyProtectedContent>
                     <div className="btn-group">
                       <button
-                        onClick={() => setCourse(course)}
+                        onClick={() => setCourseForEdit(course)}
                         className="btn btn-warning"
                       >
                         Edit

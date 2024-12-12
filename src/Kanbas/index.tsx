@@ -24,16 +24,20 @@ function ProtectedCourseRoute({ courses }: { courses: Course[] }) {
 export default function Kanbas() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [allCourses, setAllCourses] = useState<Course[]>([]);
-  const [course, setCourse] = useState<Course>({
-    _id: new Date().getTime().toString(),
-    name: "",
-    number: "",
-    description: "",
-    enrolled: false
-  });
+  const [course, setCourse] = useState<Course>(getEmptyCourse());
   const [showAllCourses, setShowAllCourses] = useState(false);
 
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  function getEmptyCourse(): Course {
+    return {
+      _id: "",
+      name: "",
+      number: "",
+      description: "",
+      enrolled: false
+    };
+  }
 
 const fetchCourses = async () => {
   try {
@@ -63,6 +67,43 @@ const fetchCourses = async () => {
     console.error("Error fetching courses:", error);
   }
 };
+
+  const addNewCourse = async () => {
+    try {
+      const newCourse = await courseClient.createCourse(course);
+      setCourses([...courses, newCourse]);
+      setCourse(getEmptyCourse()); // Clear the form
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+const updateCourse = async () => {
+  try {
+    const updatedCourse = await courseClient.updateCourse(course);
+    
+    // Update allCourses
+    setAllCourses(prevAllCourses => 
+      prevAllCourses.map(c => c.number === course.number ? 
+        { ...c, name: course.name, description: course.description } : c)
+    );
+    
+    // Update enrolled courses
+    setCourses(prevCourses => 
+      prevCourses.map(c => c.number === course.number ? 
+        { ...c, name: course.name, description: course.description } : c)
+    );
+    
+    // Clear the form
+    setCourse(getEmptyCourse());
+  } catch (error) {
+    console.error("Error updating course:", error);
+  }
+};
+
+  const setCourseForEdit = (courseToEdit: Course) => {
+    setCourse({ ...courseToEdit });
+  };
 
 const handleEnrollmentToggle = async (courseNumber: string) => {
   try {
@@ -116,22 +157,15 @@ const handleEnrollmentToggle = async (courseNumber: string) => {
                   enrolled_courses={courses}
                   course={course}
                   setCourse={setCourse}
+                  addNewCourse={addNewCourse}
+                  setCourseForEdit={setCourseForEdit}
                   fetchCourses={fetchCourses}
-                  addNewCourse={() => 
-                    courseClient.createCourse(course)
-                      .then(() => fetchCourses())
-                      .catch(error => console.error(error))
-                  }
                   deleteCourse={(courseId: string) => 
                     courseClient.deleteCourse(courseId)
                       .then(() => fetchCourses())
                       .catch(error => console.error(error))
                   }
-                  updateCourse={() => 
-                    courseClient.updateCourse(course)
-                      .then(() => fetchCourses())
-                      .catch(error => console.error(error))
-                  }
+                  updateCourse={updateCourse}
                   showAllCourses={showAllCourses}
                   toggleCourses={() => setShowAllCourses(!showAllCourses)}
                   handleEnrollmentToggle={handleEnrollmentToggle}
