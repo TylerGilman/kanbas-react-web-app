@@ -6,16 +6,15 @@ const MODULES_API = `${REMOTE_SERVER}/api/modules`;
 export const updateModule = async (module: any) => {
   try {
     console.log("[Client] Updating module:", module);
-    const cleanModule = {
-      ...module,
-      _id: module._id.toString(), // Convert ObjectId to string if needed
-    };
-    delete cleanModule.editing;
+
+    // Exclude `_id` from the payload
+    const { _id, ...updateData } = module;
 
     const response = await axiosWithCredentials.put(
-      `${MODULES_API}/${cleanModule._id}`,
-      cleanModule
+      `${MODULES_API}/${_id}`,
+      updateData // Send only update data without `_id`
     );
+
     return response.data;
   } catch (error) {
     console.error("[Client] Error updating module:", error);
